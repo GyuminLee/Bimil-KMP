@@ -1,0 +1,25 @@
+CREATE TABLE sso_hint (
+    id TEXT PRIMARY KEY NOT NULL,
+    account_id TEXT NOT NULL UNIQUE,
+    provider TEXT NOT NULL,
+    provider_custom TEXT,
+    created_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_sso_account ON sso_hint(account_id);
+
+getSsoHintByAccountId:
+SELECT * FROM sso_hint WHERE account_id = ?;
+
+insertSsoHint:
+INSERT INTO sso_hint (id, account_id, provider, provider_custom, created_at)
+VALUES (?, ?, ?, ?, ?);
+
+updateSsoHint:
+UPDATE sso_hint SET provider = ?, provider_custom = ? WHERE account_id = ?;
+
+deleteSsoHint:
+DELETE FROM sso_hint WHERE account_id = ?;
+
+deleteSsoHintById:
+DELETE FROM sso_hint WHERE id = ?;

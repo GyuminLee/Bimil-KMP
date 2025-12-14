@@ -1,0 +1,41 @@
+CREATE TABLE app_settings (
+    id INTEGER PRIMARY KEY NOT NULL DEFAULT 1,
+    theme TEXT NOT NULL DEFAULT 'SYSTEM',
+    language TEXT NOT NULL DEFAULT 'SYSTEM',
+    region TEXT NOT NULL DEFAULT 'GLOBAL',
+    pin_hash TEXT,
+    pin_salt TEXT,
+    biometric_enabled INTEGER NOT NULL DEFAULT 0,
+    auto_lock_seconds INTEGER NOT NULL DEFAULT -1,
+    schema_version INTEGER NOT NULL DEFAULT 1,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+getSettings:
+SELECT * FROM app_settings WHERE id = 1;
+
+insertSettings:
+INSERT OR REPLACE INTO app_settings (id, theme, language, region, pin_hash, pin_salt, biometric_enabled, auto_lock_seconds, schema_version, created_at, updated_at)
+VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateTheme:
+UPDATE app_settings SET theme = ?, updated_at = ? WHERE id = 1;
+
+updateLanguage:
+UPDATE app_settings SET language = ?, updated_at = ? WHERE id = 1;
+
+updateRegion:
+UPDATE app_settings SET region = ?, updated_at = ? WHERE id = 1;
+
+updatePin:
+UPDATE app_settings SET pin_hash = ?, pin_salt = ?, updated_at = ? WHERE id = 1;
+
+updateBiometric:
+UPDATE app_settings SET biometric_enabled = ?, updated_at = ? WHERE id = 1;
+
+updateAutoLock:
+UPDATE app_settings SET auto_lock_seconds = ?, updated_at = ? WHERE id = 1;
+
+clearPin:
+UPDATE app_settings SET pin_hash = NULL, pin_salt = NULL, updated_at = ? WHERE id = 1;
