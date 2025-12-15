@@ -24,6 +24,7 @@ import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
+import com.imbavchenko.bimil.data.ad.AdService
 import com.imbavchenko.bimil.data.biometric.BiometricService
 import com.imbavchenko.bimil.domain.model.Theme
 import com.imbavchenko.bimil.domain.usecase.GetSettingsUseCase
@@ -45,7 +46,8 @@ import org.koin.compose.koinInject
 fun BimilApp(
     getSettingsUseCase: GetSettingsUseCase = koinInject(),
     verifyPinUseCase: VerifyPinUseCase = koinInject(),
-    biometricService: BiometricService = koinInject()
+    biometricService: BiometricService = koinInject(),
+    adService: AdService = koinInject()
 ) {
     // Setup Coil3 ImageLoader with Ktor network support
     setSingletonImageLoaderFactory { context ->
@@ -55,6 +57,11 @@ fun BimilApp(
             }
             .crossfade(true)
             .build()
+    }
+
+    // Initialize ad service
+    LaunchedEffect(Unit) {
+        adService.initialize()
     }
 
     val settings by getSettingsUseCase().collectAsState(initial = null)

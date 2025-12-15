@@ -49,11 +49,13 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.imbavchenko.bimil.data.ad.AdService
 import com.imbavchenko.bimil.domain.model.LoginType
 import com.imbavchenko.bimil.domain.model.RequirementStatus
 import com.imbavchenko.bimil.presentation.localization.Strings
 import com.imbavchenko.bimil.presentation.localization.strings
 import com.imbavchenko.bimil.presentation.viewmodel.AddEditAccountViewModel
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,10 +63,12 @@ import org.koin.compose.viewmodel.koinViewModel
 fun AddEditAccountScreen(
     accountId: String?,
     onNavigateBack: () -> Unit,
-    viewModel: AddEditAccountViewModel = koinViewModel()
+    viewModel: AddEditAccountViewModel = koinViewModel(),
+    adService: AdService = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val strings = strings()
+    val isNewAccount = accountId == null
 
     LaunchedEffect(accountId) {
         viewModel.loadAccount(accountId)
@@ -72,7 +76,14 @@ fun AddEditAccountScreen(
 
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
-            onNavigateBack()
+            // Show interstitial ad only for new accounts (once per day max)
+            if (isNewAccount && adService.canShowInterstitialToday()) {
+                adService.showInterstitialAd {
+                    onNavigateBack()
+                }
+            } else {
+                onNavigateBack()
+            }
         }
     }
 

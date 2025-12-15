@@ -69,6 +69,7 @@ kotlin {
                 implementation(libs.koin.android)
                 implementation(libs.androidx.biometric)
                 implementation(libs.ktor.client.okhttp)
+                implementation(libs.play.services.ads)
             }
         }
 

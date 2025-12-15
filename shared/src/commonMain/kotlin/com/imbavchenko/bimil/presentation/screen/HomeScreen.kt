@@ -64,6 +64,7 @@ import com.imbavchenko.bimil.domain.model.AccountWithHint
 import com.imbavchenko.bimil.presentation.theme.BimilColors
 import com.imbavchenko.bimil.domain.model.Category
 import com.imbavchenko.bimil.presentation.component.AccountCard
+import com.imbavchenko.bimil.presentation.component.BannerAd
 import com.imbavchenko.bimil.presentation.component.SearchBar
 import com.imbavchenko.bimil.presentation.localization.strings
 import com.imbavchenko.bimil.presentation.viewmodel.HomeViewModel
@@ -134,13 +135,15 @@ fun HomeScreen(
                 onCategorySelected = viewModel::onCategorySelected
             )
 
-            if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+            // Main content area (takes remaining space)
+            Box(modifier = Modifier.weight(1f)) {
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
             } else if (uiState.filteredAccounts.isEmpty()) {
                 EmptyState(
                     hasSearchQuery = uiState.searchQuery.isNotBlank(),
@@ -215,7 +218,11 @@ fun HomeScreen(
                     // Space for FAB
                     item { Spacer(modifier = Modifier.height(80.dp)) }
                 }
+                }
             }
+
+            // Banner ad at the bottom
+            BannerAd(modifier = Modifier.fillMaxWidth())
         }
     }
 }
