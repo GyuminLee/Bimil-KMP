@@ -137,10 +137,8 @@ fun BimilApp(
     BimilTheme(darkTheme = isDarkTheme ?: false) {
         ProvideStrings(language = language) {
             Surface(modifier = Modifier.fillMaxSize()) {
-                // Show lock screen if:
-                // 1. Settings not loaded yet (stay locked until we know PIN status)
-                // 2. OR settings loaded AND isLocked AND isPinEnabled
-                val shouldShowLockScreen = isLocked && (!settingsLoaded || isPinEnabled)
+                // Show lock screen only when settings are loaded AND PIN is enabled AND locked
+                val shouldShowLockScreen = settingsLoaded && isPinEnabled && isLocked
 
                 if (shouldShowLockScreen) {
                     LockScreenContent(
