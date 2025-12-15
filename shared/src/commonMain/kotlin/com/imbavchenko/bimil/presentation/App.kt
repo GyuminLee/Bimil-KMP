@@ -60,11 +60,12 @@ fun BimilApp(
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Lock state - starts locked if PIN is enabled
+    // Lock state - starts locked, will be unlocked only if PIN is disabled
     var isLocked by remember { mutableStateOf(true) }
     var wasInBackground by remember { mutableStateOf(false) }
 
-    // Check if we should show lock screen
+    // Check if settings are loaded and if PIN is enabled
+    val settingsLoaded = settings != null
     val isPinEnabled = settings?.isPinEnabled == true
     val isBiometricEnabled = settings?.isBiometricEnabled == true
     // Don't use remember - check on every recomposition
@@ -73,10 +74,10 @@ fun BimilApp(
     // Use rememberUpdatedState to capture latest isPinEnabled in callback
     val currentIsPinEnabled by rememberUpdatedState(isPinEnabled)
 
-    // Handle lock state based on PIN setting
-    LaunchedEffect(isPinEnabled) {
-        if (!isPinEnabled) {
-            // PIN disabled - unlock
+    // Handle lock state based on PIN setting - only unlock if settings loaded AND PIN disabled
+    LaunchedEffect(settingsLoaded, isPinEnabled) {
+        if (settingsLoaded && !isPinEnabled) {
+            // Settings loaded and PIN is disabled - safe to unlock
             isLocked = false
         }
     }
@@ -90,7 +91,7 @@ fun BimilApp(
                     wasInBackground = true
                 }
                 Lifecycle.Event.ON_START -> {
-                    // App came back from background - use currentIsPinEnabled for latest value
+                    // App came back from background - lock if PIN is enabled
                     if (wasInBackground && currentIsPinEnabled) {
                         isLocked = true
                     }
@@ -122,8 +123,12 @@ fun BimilApp(
     BimilTheme(darkTheme = isDarkTheme ?: false) {
         ProvideStrings(language = language) {
             Surface(modifier = Modifier.fillMaxSize()) {
-                // Show lock screen if locked and PIN is enabled
-                if (isLocked && isPinEnabled) {
+                // Show lock screen if:
+                // 1. Settings not loaded yet (stay locked until we know PIN status)
+                // 2. OR settings loaded AND isLocked AND isPinEnabled
+                val shouldShowLockScreen = isLocked && (!settingsLoaded || isPinEnabled)
+
+                if (shouldShowLockScreen) {
                     LockScreenContent(
                         verifyPinUseCase = verifyPinUseCase,
                         biometricService = biometricService,
