@@ -158,6 +158,7 @@ fun SettingsScreen(
         PasswordInputDialog(
             title = strings.restoreBackup,
             message = strings.enterBackupPassword,
+            requireConfirmation = false,
             onDismiss = {
                 showRestorePasswordDialog = false
                 onRestoreComplete()
@@ -548,6 +549,7 @@ private fun SettingsDropdownRow(
 private fun PasswordInputDialog(
     title: String,
     message: String,
+    requireConfirmation: Boolean = true,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
@@ -574,38 +576,50 @@ private fun PasswordInputDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = {
-                        confirmPassword = it
-                        showError = false
-                    },
-                    label = { Text(strings.confirmPassword) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true,
-                    isError = showError,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                if (showError) {
-                    Text(
-                        text = strings.passwordMismatch,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
+                if (requireConfirmation) {
+                    OutlinedTextField(
+                        value = confirmPassword,
+                        onValueChange = {
+                            confirmPassword = it
+                            showError = false
+                        },
+                        label = { Text(strings.confirmPassword) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        singleLine = true,
+                        isError = showError,
+                        modifier = Modifier.fillMaxWidth()
                     )
+                    if (showError) {
+                        Text(
+                            text = strings.passwordMismatch,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (password == confirmPassword && password.isNotEmpty()) {
-                        onConfirm(password)
+                    if (requireConfirmation) {
+                        if (password == confirmPassword && password.isNotEmpty()) {
+                            onConfirm(password)
+                        } else {
+                            showError = true
+                        }
                     } else {
-                        showError = true
+                        if (password.isNotEmpty()) {
+                            onConfirm(password)
+                        }
                     }
                 },
-                enabled = password.isNotEmpty() && confirmPassword.isNotEmpty()
+                enabled = if (requireConfirmation) {
+                    password.isNotEmpty() && confirmPassword.isNotEmpty()
+                } else {
+                    password.isNotEmpty()
+                }
             ) {
                 Text(strings.confirm)
             }
