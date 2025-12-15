@@ -4,11 +4,12 @@ import android.content.Context
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import com.imbavchenko.bimil.data.biometric.BiometricService
+import com.imbavchenko.bimil.di.ActivityProvider
 
 class AndroidBiometricService(
-    private val context: Context
+    private val context: Context,
+    private val activityProvider: ActivityProvider
 ) : BiometricService {
     override fun isBiometricAvailable(): Boolean {
         val biometricManager = BiometricManager.from(context)
@@ -25,7 +26,7 @@ class AndroidBiometricService(
         onError: (String) -> Unit,
         onCancel: () -> Unit
     ) {
-        val activity = context as? FragmentActivity ?: run {
+        val activity = activityProvider.getActivity() ?: run {
             onError("Activity not available")
             return
         }

@@ -3,6 +3,7 @@ package com.imbavchenko.bimil.presentation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -11,6 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -53,10 +57,11 @@ fun BimilApp(
 
     val settings by getSettingsUseCase().collectAsState(initial = null)
     val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     // Lock state - starts locked if PIN is enabled
     var isLocked by remember { mutableStateOf(true) }
-    var hasUnlockedOnce by remember { mutableStateOf(false) }
+    var wasInBackground by remember { mutableStateOf(false) }
 
     // Check if we should show lock screen
     val isPinEnabled = settings?.isPinEnabled == true
@@ -68,12 +73,31 @@ fun BimilApp(
         if (!isPinEnabled) {
             // PIN disabled - unlock
             isLocked = false
-            hasUnlockedOnce = false
-        } else if (!hasUnlockedOnce) {
-            // PIN enabled and never unlocked in this session - stay locked
-            isLocked = true
         }
-        // If PIN is enabled but user already unlocked once, stay unlocked until app restart
+    }
+
+    // Lock when app comes back from background
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_STOP -> {
+                    // App went to background
+                    wasInBackground = true
+                }
+                Lifecycle.Event.ON_START -> {
+                    // App came back from background
+                    if (wasInBackground && isPinEnabled) {
+                        isLocked = true
+                    }
+                    wasInBackground = false
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     val isDarkTheme = when (settings?.theme) {
@@ -102,7 +126,6 @@ fun BimilApp(
                         isBiometricEnabled = isBiometricEnabled,
                         onUnlock = {
                             isLocked = false
-                            hasUnlockedOnce = true
                         }
                     )
                 } else {

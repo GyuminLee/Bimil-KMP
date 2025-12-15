@@ -6,5 +6,6 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 actual val platformModule: Module = module {
-    single<BiometricService> { AndroidBiometricService(get()) }
+    single { ActivityProvider() }
+    single<BiometricService> { AndroidBiometricService(get(), get()) }
 }
