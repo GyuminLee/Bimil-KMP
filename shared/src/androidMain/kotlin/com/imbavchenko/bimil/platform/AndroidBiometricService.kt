@@ -13,10 +13,12 @@ class AndroidBiometricService(
 ) : BiometricService {
     override fun isBiometricAvailable(): Boolean {
         val biometricManager = BiometricManager.from(context)
-        return when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK)) {
-            BiometricManager.BIOMETRIC_SUCCESS -> true
-            else -> false
-        }
+        // Check for any biometric - try WEAK first (more permissive, includes fingerprint/face)
+        val canAuthenticateWeak = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK)
+        val canAuthenticateStrong = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+
+        return canAuthenticateWeak == BiometricManager.BIOMETRIC_SUCCESS ||
+               canAuthenticateStrong == BiometricManager.BIOMETRIC_SUCCESS
     }
 
     override suspend fun authenticate(
@@ -58,11 +60,20 @@ class AndroidBiometricService(
 
         val biometricPrompt = BiometricPrompt(activity, executor, callback)
 
+        // Use the same authenticator type that's available
+        val biometricManager = BiometricManager.from(context)
+        val authenticators = when {
+            biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS ->
+                BiometricManager.Authenticators.BIOMETRIC_STRONG
+            else ->
+                BiometricManager.Authenticators.BIOMETRIC_WEAK
+        }
+
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
             .setSubtitle(subtitle)
             .setNegativeButtonText("Cancel")
-            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK)
+            .setAllowedAuthenticators(authenticators)
             .build()
 
         biometricPrompt.authenticate(promptInfo)
