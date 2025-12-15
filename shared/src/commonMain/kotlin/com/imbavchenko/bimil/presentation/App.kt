@@ -65,6 +65,9 @@ fun BimilApp(
     var isLocked by remember { mutableStateOf(true) }
     var wasInBackground by remember { mutableStateOf(false) }
 
+    // Backup restore state - keep at app level to persist across lock/unlock
+    var pendingRestoreData by remember { mutableStateOf<ByteArray?>(null) }
+
     // Check if settings are loaded and if PIN is enabled
     val settingsLoaded = settings != null
     val isPinEnabled = settings?.isPinEnabled == true
@@ -121,6 +124,16 @@ fun BimilApp(
         else -> Language.ENGLISH
     }
 
+    // File picker launchers - must be at app level to persist across lock/unlock
+    val filePickerLaunchers = rememberFilePickerLaunchers(
+        onFileSaved = { success ->
+            // File saved callback
+        },
+        onFileSelected = { data ->
+            pendingRestoreData = data
+        }
+    )
+
     BimilTheme(darkTheme = isDarkTheme ?: false) {
         ProvideStrings(language = language) {
             Surface(modifier = Modifier.fillMaxSize()) {
@@ -172,17 +185,6 @@ fun BimilApp(
                         }
 
                         composable<Screen.Settings> {
-                            var pendingRestoreData by remember { mutableStateOf<ByteArray?>(null) }
-
-                            val filePickerLaunchers = rememberFilePickerLaunchers(
-                                onFileSaved = { success ->
-                                    // File saved callback - can show snackbar if needed
-                                },
-                                onFileSelected = { data ->
-                                    pendingRestoreData = data
-                                }
-                            )
-
                             SettingsScreen(
                                 onNavigateBack = {
                                     navController.popBackStack()
