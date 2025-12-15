@@ -1,6 +1,7 @@
 package com.imbavchenko.bimil.platform
 
 import android.content.Context
+import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
@@ -11,14 +12,39 @@ class AndroidBiometricService(
     private val context: Context,
     private val activityProvider: ActivityProvider
 ) : BiometricService {
-    override fun isBiometricAvailable(): Boolean {
-        val biometricManager = BiometricManager.from(context)
-        // Check for any biometric - try WEAK first (more permissive, includes fingerprint/face)
-        val canAuthenticateWeak = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK)
-        val canAuthenticateStrong = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
 
-        return canAuthenticateWeak == BiometricManager.BIOMETRIC_SUCCESS ||
-               canAuthenticateStrong == BiometricManager.BIOMETRIC_SUCCESS
+    private fun getAvailableAuthenticator(): Int? {
+        return try {
+            val biometricManager = BiometricManager.from(context)
+
+            // Try each authenticator type and return the first one that works
+            val authenticatorsToTry = listOf(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG,
+                BiometricManager.Authenticators.BIOMETRIC_WEAK,
+                // For Android 11+, try combined check
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                } else null
+            ).filterNotNull()
+
+            for (authenticator in authenticatorsToTry) {
+                if (biometricManager.canAuthenticate(authenticator) == BiometricManager.BIOMETRIC_SUCCESS) {
+                    // For DEVICE_CREDENTIAL combo, only return BIOMETRIC_STRONG
+                    return if (authenticator and BiometricManager.Authenticators.DEVICE_CREDENTIAL != 0) {
+                        BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                    } else {
+                        authenticator
+                    }
+                }
+            }
+            null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override fun isBiometricAvailable(): Boolean {
+        return getAvailableAuthenticator() != null
     }
 
     override suspend fun authenticate(
@@ -30,6 +56,11 @@ class AndroidBiometricService(
     ) {
         val activity = activityProvider.getActivity() ?: run {
             onError("Activity not available")
+            return
+        }
+
+        val authenticator = getAvailableAuthenticator() ?: run {
+            onError("Biometric not available")
             return
         }
 
@@ -60,22 +91,21 @@ class AndroidBiometricService(
 
         val biometricPrompt = BiometricPrompt(activity, executor, callback)
 
-        // Use the same authenticator type that's available
-        val biometricManager = BiometricManager.from(context)
-        val authenticators = when {
-            biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS ->
-                BiometricManager.Authenticators.BIOMETRIC_STRONG
-            else ->
-                BiometricManager.Authenticators.BIOMETRIC_WEAK
-        }
-
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        val promptInfoBuilder = BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
             .setSubtitle(subtitle)
-            .setNegativeButtonText("Cancel")
-            .setAllowedAuthenticators(authenticators)
-            .build()
+            .setAllowedAuthenticators(authenticator)
 
-        biometricPrompt.authenticate(promptInfo)
+        // Only set negative button if NOT using DEVICE_CREDENTIAL
+        // (DEVICE_CREDENTIAL provides its own cancel mechanism)
+        if (authenticator and BiometricManager.Authenticators.DEVICE_CREDENTIAL == 0) {
+            promptInfoBuilder.setNegativeButtonText("Cancel")
+        }
+
+        try {
+            biometricPrompt.authenticate(promptInfoBuilder.build())
+        } catch (e: Exception) {
+            onError(e.message ?: "Authentication failed")
+        }
     }
 }
