@@ -66,9 +66,11 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
 
     var showPinDialog by remember { mutableStateOf(false) }
-    val isBiometricAvailable = remember { biometricService.isBiometricAvailable() }
+    var showPinSetupForEnable by remember { mutableStateOf(false) }
+    // Don't use remember - check every recomposition to handle Activity lifecycle
+    val isBiometricAvailable = biometricService.isBiometricAvailable()
 
-    // PIN Setup Dialog
+    // PIN Setup Dialog for changing PIN
     PinSetupDialog(
         isVisible = showPinDialog,
         isPinEnabled = uiState.settings.isPinEnabled,
@@ -86,6 +88,19 @@ fun SettingsScreen(
         onVerifyCurrentPin = { pin ->
             viewModel.verifyPin(pin)
         }
+    )
+
+    // PIN Setup Dialog for enabling PIN lock
+    PinSetupDialog(
+        isVisible = showPinSetupForEnable,
+        isPinEnabled = false, // Always show as new PIN setup
+        onDismiss = { showPinSetupForEnable = false },
+        onPinSet = { pin ->
+            viewModel.setPin(pin)
+            showPinSetupForEnable = false
+        },
+        onPinRemove = {},
+        onVerifyCurrentPin = { false }
     )
 
     Scaffold(
@@ -121,12 +136,39 @@ fun SettingsScreen(
         ) {
             // Security Section
             SettingsSection(title = strings.security) {
+                // PIN Lock Switch
                 SettingsRow(
                     title = strings.pinLock,
-                    subtitle = if (uiState.settings.isPinEnabled) strings.enabled else strings.disabled,
-                    onClick = { showPinDialog = true }
+                    subtitle = strings.pinLockSubtitle,
+                    trailing = {
+                        Switch(
+                            checked = uiState.settings.isPinEnabled,
+                            onCheckedChange = { enabled ->
+                                if (enabled) {
+                                    // Show PIN setup dialog
+                                    showPinSetupForEnable = true
+                                } else {
+                                    // Disable PIN and biometric
+                                    viewModel.clearPin()
+                                    if (uiState.settings.isBiometricEnabled) {
+                                        viewModel.updateBiometric(false)
+                                    }
+                                }
+                            }
+                        )
+                    }
                 )
 
+                // Change PIN (only visible when PIN is enabled)
+                if (uiState.settings.isPinEnabled) {
+                    SettingsRow(
+                        title = strings.changePin,
+                        subtitle = strings.changePinSubtitle,
+                        onClick = { showPinDialog = true }
+                    )
+                }
+
+                // Biometric Unlock Switch
                 SettingsRow(
                     title = strings.biometricUnlock,
                     subtitle = if (!isBiometricAvailable) strings.biometricNotAvailable else strings.biometricSubtitle,
@@ -134,12 +176,7 @@ fun SettingsScreen(
                         Switch(
                             checked = uiState.settings.isBiometricEnabled,
                             onCheckedChange = { enabled ->
-                                if (enabled && !uiState.settings.isPinEnabled) {
-                                    // Show PIN setup first
-                                    showPinDialog = true
-                                } else {
-                                    viewModel.updateBiometric(enabled)
-                                }
+                                viewModel.updateBiometric(enabled)
                             },
                             enabled = uiState.settings.isPinEnabled && isBiometricAvailable
                         )

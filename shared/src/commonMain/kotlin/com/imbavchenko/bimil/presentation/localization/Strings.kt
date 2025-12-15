@@ -69,6 +69,8 @@ data class Strings(
     // Settings Screen
     val security: String,
     val pinLock: String,
+    val pinLockSubtitle: String,
+    val changePinSubtitle: String,
     val biometricUnlock: String,
     val biometricSubtitle: String,
     val autoLock: String,
@@ -187,6 +189,8 @@ val EnglishStrings = Strings(
     // Settings Screen
     security = "Security",
     pinLock = "PIN Lock",
+    pinLockSubtitle = "Lock app with a PIN code",
+    changePinSubtitle = "Modify your current PIN",
     biometricUnlock = "Biometric Unlock",
     biometricSubtitle = "Use fingerprint or face",
     autoLock = "Auto-lock",
@@ -305,6 +309,8 @@ val KoreanStrings = Strings(
     // Settings Screen
     security = "보안",
     pinLock = "PIN 잠금",
+    pinLockSubtitle = "PIN 코드로 앱 잠금",
+    changePinSubtitle = "현재 PIN 변경",
     biometricUnlock = "생체인식 잠금해제",
     biometricSubtitle = "지문 또는 얼굴 사용",
     autoLock = "자동 잠금",
@@ -423,6 +429,8 @@ val JapaneseStrings = Strings(
     // Settings Screen
     security = "セキュリティ",
     pinLock = "PINロック",
+    pinLockSubtitle = "PINコードでアプリをロック",
+    changePinSubtitle = "現在のPINを変更",
     biometricUnlock = "生体認証ロック解除",
     biometricSubtitle = "指紋または顔を使用",
     autoLock = "自動ロック",
@@ -541,6 +549,8 @@ val ChineseStrings = Strings(
     // Settings Screen
     security = "安全",
     pinLock = "PIN锁",
+    pinLockSubtitle = "使用PIN码锁定应用",
+    changePinSubtitle = "修改当前PIN",
     biometricUnlock = "生物识别解锁",
     biometricSubtitle = "使用指纹或面容",
     autoLock = "自动锁定",
@@ -659,6 +669,8 @@ val GermanStrings = Strings(
     // Settings Screen
     security = "Sicherheit",
     pinLock = "PIN-Sperre",
+    pinLockSubtitle = "App mit PIN-Code sperren",
+    changePinSubtitle = "Aktuelle PIN andern",
     biometricUnlock = "Biometrische Entsperrung",
     biometricSubtitle = "Fingerabdruck oder Gesicht verwenden",
     autoLock = "Automatische Sperre",
