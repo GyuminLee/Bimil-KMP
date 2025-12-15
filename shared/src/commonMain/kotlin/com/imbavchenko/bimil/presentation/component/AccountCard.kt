@@ -43,6 +43,7 @@ import com.imbavchenko.bimil.domain.model.AccountWithHint
 import com.imbavchenko.bimil.domain.model.LoginType
 import com.imbavchenko.bimil.domain.model.PasswordHint
 import com.imbavchenko.bimil.domain.model.RequirementStatus
+import com.imbavchenko.bimil.presentation.localization.strings
 import com.imbavchenko.bimil.presentation.theme.BimilColors
 
 private fun parseHexColor(hex: String): Color? {
@@ -69,6 +70,7 @@ fun AccountCard(
 ) {
     val account = accountWithHint.account
     val category = accountWithHint.category
+    val strings = strings()
 
     Card(
         modifier = modifier
@@ -123,21 +125,21 @@ fun AccountCard(
                 if (account.loginType == LoginType.SSO) {
                     // SSO: "via Google" style
                     Text(
-                        text = "via ${accountWithHint.ssoHint?.provider?.displayName ?: "SSO"}",
+                        text = "${strings.via} ${accountWithHint.ssoHint?.provider?.displayName ?: "SSO"}",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = BimilColors.Primary
                     )
                 } else {
                     // Password: Hint chips
-                    PasswordHintChips(hint = accountWithHint.passwordHint)
+                    PasswordHintChips(hint = accountWithHint.passwordHint, digitPlusSuffix = strings.digitPlus)
                 }
 
                 // Note section (if memo exists)
                 if (!account.memo.isNullOrBlank()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Note",
+                        text = strings.note,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = BimilColors.Primary
@@ -156,7 +158,7 @@ fun AccountCard(
             IconButton(onClick = onFavoriteClick) {
                 Icon(
                     imageVector = if (account.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                    contentDescription = if (account.isFavorite) "Remove from favorites" else "Add to favorites",
+                    contentDescription = if (account.isFavorite) strings.removeFromFavorites else strings.addToFavorites,
                     tint = if (account.isFavorite) BimilColors.StarActive else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -250,7 +252,8 @@ private fun FallbackLetter(serviceName: String, color: Color) {
 @Composable
 fun PasswordHintChips(
     hint: PasswordHint?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    digitPlusSuffix: String = "digit+"
 ) {
     val isDarkTheme = isSystemInDarkTheme()
 
@@ -262,7 +265,7 @@ fun PasswordHintChips(
         // Minimum length chip (always show if hint exists)
         if (hint != null && hint.minLength > 0) {
             HintChip(
-                text = "${hint.minLength}digit+",
+                text = "${hint.minLength}$digitPlusSuffix",
                 isActive = true,
                 isDarkTheme = isDarkTheme
             )

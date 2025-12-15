@@ -16,6 +16,8 @@ import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import com.imbavchenko.bimil.domain.model.Theme
 import com.imbavchenko.bimil.domain.usecase.GetSettingsUseCase
+import com.imbavchenko.bimil.presentation.localization.Language
+import com.imbavchenko.bimil.presentation.localization.ProvideStrings
 import com.imbavchenko.bimil.presentation.navigation.Screen
 import com.imbavchenko.bimil.presentation.screen.AddEditAccountScreen
 import com.imbavchenko.bimil.presentation.screen.HomeScreen
@@ -44,9 +46,18 @@ fun BimilApp(
         else -> null // System default
     }
 
+    val language = when (settings?.language) {
+        "ko" -> Language.KOREAN
+        "ja" -> Language.JAPANESE
+        "zh" -> Language.CHINESE
+        "de" -> Language.GERMAN
+        else -> Language.ENGLISH
+    }
+
     BimilTheme(darkTheme = isDarkTheme ?: false) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            val navController = rememberNavController()
+        ProvideStrings(language = language) {
+            Surface(modifier = Modifier.fillMaxSize()) {
+                val navController = rememberNavController()
 
             NavHost(
                 navController = navController,
@@ -83,6 +94,7 @@ fun BimilApp(
                         }
                     )
                 }
+            }
             }
         }
     }

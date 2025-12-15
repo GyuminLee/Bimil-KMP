@@ -51,6 +51,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.imbavchenko.bimil.domain.model.LoginType
 import com.imbavchenko.bimil.domain.model.RequirementStatus
+import com.imbavchenko.bimil.presentation.localization.Strings
+import com.imbavchenko.bimil.presentation.localization.strings
 import com.imbavchenko.bimil.presentation.viewmodel.AddEditAccountViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -62,6 +64,7 @@ fun AddEditAccountScreen(
     viewModel: AddEditAccountViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = strings()
 
     LaunchedEffect(accountId) {
         viewModel.loadAccount(accountId)
@@ -78,7 +81,7 @@ fun AddEditAccountScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (uiState.isEditing) "Edit Account" else "Add Account",
+                        text = if (uiState.isEditing) strings.editAccount else strings.addAccount,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -86,7 +89,7 @@ fun AddEditAccountScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = strings.back
                         )
                     }
                 },
@@ -97,7 +100,7 @@ fun AddEditAccountScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Check,
-                            contentDescription = "Save",
+                            contentDescription = strings.save,
                             tint = if (uiState.isValid)
                                 MaterialTheme.colorScheme.primary
                             else
@@ -120,12 +123,12 @@ fun AddEditAccountScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Basic Info Section
-            SectionCard(title = "Basic Information") {
+            SectionCard(title = strings.basicInformation) {
                 OutlinedTextField(
                     value = uiState.serviceName,
                     onValueChange = viewModel::updateServiceName,
-                    label = { Text("Service Name *") },
-                    placeholder = { Text("e.g., Google, Netflix") },
+                    label = { Text(strings.serviceName) },
+                    placeholder = { Text(strings.serviceNamePlaceholder) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
@@ -136,8 +139,8 @@ fun AddEditAccountScreen(
                 OutlinedTextField(
                     value = uiState.username,
                     onValueChange = viewModel::updateUsername,
-                    label = { Text("Username / Email *") },
-                    placeholder = { Text("e.g., user@email.com") },
+                    label = { Text(strings.usernameEmail) },
+                    placeholder = { Text(strings.usernameEmailPlaceholder) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
@@ -148,8 +151,8 @@ fun AddEditAccountScreen(
                 OutlinedTextField(
                     value = uiState.websiteUrl,
                     onValueChange = viewModel::updateWebsiteUrl,
-                    label = { Text("Website URL (optional)") },
-                    placeholder = { Text("e.g., https://example.com") },
+                    label = { Text(strings.websiteUrl) },
+                    placeholder = { Text(strings.websiteUrlPlaceholder) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
@@ -161,26 +164,27 @@ fun AddEditAccountScreen(
                 CategoryDropdown(
                     categories = uiState.categories,
                     selectedCategoryId = uiState.categoryId,
-                    onCategorySelected = viewModel::updateCategory
+                    onCategorySelected = viewModel::updateCategory,
+                    strings = strings
                 )
             }
 
             // Login Type Section
-            SectionCard(title = "Login Type") {
+            SectionCard(title = strings.loginType) {
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     SegmentedButton(
                         selected = uiState.loginType == LoginType.PASSWORD,
                         onClick = { viewModel.updateLoginType(LoginType.PASSWORD) },
                         shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
                     ) {
-                        Text("Password")
+                        Text(strings.password)
                     }
                     SegmentedButton(
                         selected = uiState.loginType == LoginType.SSO,
                         onClick = { viewModel.updateLoginType(LoginType.SSO) },
                         shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
                     ) {
-                        Text("SSO")
+                        Text(strings.sso)
                     }
                 }
             }
@@ -192,7 +196,8 @@ fun AddEditAccountScreen(
                     selectedProvider = uiState.ssoProvider,
                     customProvider = uiState.ssoProviderCustom,
                     onProviderSelected = viewModel::updateSsoProvider,
-                    onCustomProviderChange = viewModel::updateSsoProviderCustom
+                    onCustomProviderChange = viewModel::updateSsoProviderCustom,
+                    strings = strings
                 )
             } else {
                 PasswordHintSection(
@@ -207,16 +212,17 @@ fun AddEditAccountScreen(
                     onRequiresUppercaseChange = viewModel::updateRequiresUppercase,
                     onRequiresLowercaseChange = viewModel::updateRequiresLowercase,
                     onRequiresNumberChange = viewModel::updateRequiresNumber,
-                    onPersonalHintChange = viewModel::updatePersonalHint
+                    onPersonalHintChange = viewModel::updatePersonalHint,
+                    strings = strings
                 )
             }
 
             // Memo
-            SectionCard(title = "Memo (optional)") {
+            SectionCard(title = strings.memo) {
                 OutlinedTextField(
                     value = uiState.memo,
                     onValueChange = viewModel::updateMemo,
-                    placeholder = { Text("Add any additional notes...") },
+                    placeholder = { Text(strings.memoPlaceholder) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
                     maxLines = 4,
@@ -259,7 +265,8 @@ private fun SectionCard(
 private fun CategoryDropdown(
     categories: List<com.imbavchenko.bimil.domain.model.Category>,
     selectedCategoryId: String,
-    onCategorySelected: (String) -> Unit
+    onCategorySelected: (String) -> Unit,
+    strings: Strings
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedCategory = categories.find { it.id == selectedCategoryId }
@@ -269,10 +276,10 @@ private fun CategoryDropdown(
         onExpandedChange = { expanded = it }
     ) {
         OutlinedTextField(
-            value = selectedCategory?.name ?: "Select category",
+            value = selectedCategory?.name ?: strings.selectCategory,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Category") },
+            label = { Text(strings.category) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -304,11 +311,12 @@ private fun SsoSection(
     selectedProvider: com.imbavchenko.bimil.domain.model.SsoProvider,
     customProvider: String,
     onProviderSelected: (com.imbavchenko.bimil.domain.model.SsoProvider) -> Unit,
-    onCustomProviderChange: (String) -> Unit
+    onCustomProviderChange: (String) -> Unit,
+    strings: Strings
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    SectionCard(title = "SSO Provider") {
+    SectionCard(title = strings.ssoProvider) {
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = it }
@@ -317,7 +325,7 @@ private fun SsoSection(
                 value = selectedProvider.displayName,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Provider") },
+                label = { Text(strings.provider) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -340,7 +348,7 @@ private fun SsoSection(
                 }
                 // Add Custom option
                 DropdownMenuItem(
-                    text = { Text("Other...") },
+                    text = { Text(strings.other) },
                     onClick = {
                         onProviderSelected(com.imbavchenko.bimil.domain.model.SsoProvider.CUSTOM)
                         expanded = false
@@ -354,7 +362,7 @@ private fun SsoSection(
             OutlinedTextField(
                 value = customProvider,
                 onValueChange = onCustomProviderChange,
-                label = { Text("Custom Provider Name") },
+                label = { Text(strings.customProviderName) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp)
@@ -376,13 +384,14 @@ private fun PasswordHintSection(
     onRequiresUppercaseChange: (RequirementStatus) -> Unit,
     onRequiresLowercaseChange: (RequirementStatus) -> Unit,
     onRequiresNumberChange: (RequirementStatus) -> Unit,
-    onPersonalHintChange: (String) -> Unit
+    onPersonalHintChange: (String) -> Unit,
+    strings: Strings
 ) {
-    SectionCard(title = "Password Requirements") {
+    SectionCard(title = strings.passwordRequirements) {
         OutlinedTextField(
             value = minLength.toString(),
             onValueChange = { it.toIntOrNull()?.let(onMinLengthChange) },
-            label = { Text("Minimum Length") },
+            label = { Text(strings.minimumLength) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -391,18 +400,18 @@ private fun PasswordHintSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        RequirementRow("Special characters (!@#)", requiresSpecial, onRequiresSpecialChange)
-        RequirementRow("Uppercase letters (A-Z)", requiresUppercase, onRequiresUppercaseChange)
-        RequirementRow("Lowercase letters (a-z)", requiresLowercase, onRequiresLowercaseChange)
-        RequirementRow("Numbers (0-9)", requiresNumber, onRequiresNumberChange)
+        RequirementRow(strings.specialCharacters, requiresSpecial, onRequiresSpecialChange, strings)
+        RequirementRow(strings.uppercaseLetters, requiresUppercase, onRequiresUppercaseChange, strings)
+        RequirementRow(strings.lowercaseLetters, requiresLowercase, onRequiresLowercaseChange, strings)
+        RequirementRow(strings.numbers, requiresNumber, onRequiresNumberChange, strings)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = personalHint,
             onValueChange = onPersonalHintChange,
-            label = { Text("Personal Hint") },
-            placeholder = { Text("e.g., birthday + first car name") },
+            label = { Text(strings.personalHint) },
+            placeholder = { Text(strings.personalHintPlaceholder) },
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
             maxLines = 3,
@@ -416,7 +425,8 @@ private fun PasswordHintSection(
 private fun RequirementRow(
     label: String,
     status: RequirementStatus,
-    onStatusChange: (RequirementStatus) -> Unit
+    onStatusChange: (RequirementStatus) -> Unit,
+    strings: Strings
 ) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Text(
@@ -447,9 +457,9 @@ private fun RequirementRow(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = when (option) {
-                            RequirementStatus.YES -> "Yes"
-                            RequirementStatus.NO -> "No"
-                            RequirementStatus.UNKNOWN -> "?"
+                            RequirementStatus.YES -> strings.yes
+                            RequirementStatus.NO -> strings.no
+                            RequirementStatus.UNKNOWN -> strings.unknown
                         },
                         style = MaterialTheme.typography.bodySmall
                     )

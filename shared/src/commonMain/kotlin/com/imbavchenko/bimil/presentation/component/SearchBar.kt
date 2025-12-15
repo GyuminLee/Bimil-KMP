@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.imbavchenko.bimil.presentation.localization.strings
 
 @Composable
 fun SearchBar(
@@ -23,6 +24,7 @@ fun SearchBar(
     placeholder: String = "Search...",
     modifier: Modifier = Modifier
 ) {
+    val strings = strings()
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
@@ -38,7 +40,7 @@ fun SearchBar(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Search",
+                contentDescription = strings.search,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
@@ -47,7 +49,7 @@ fun SearchBar(
                 IconButton(onClick = { onQueryChange("") }) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Clear",
+                        contentDescription = strings.clear,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

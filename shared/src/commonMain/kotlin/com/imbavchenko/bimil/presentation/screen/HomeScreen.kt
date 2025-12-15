@@ -1,5 +1,6 @@
 package com.imbavchenko.bimil.presentation.screen
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,24 +21,35 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,11 +60,14 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.imbavchenko.bimil.domain.model.AccountWithHint
 import com.imbavchenko.bimil.presentation.theme.BimilColors
 import com.imbavchenko.bimil.domain.model.Category
 import com.imbavchenko.bimil.presentation.component.AccountCard
 import com.imbavchenko.bimil.presentation.component.SearchBar
+import com.imbavchenko.bimil.presentation.localization.strings
 import com.imbavchenko.bimil.presentation.viewmodel.HomeViewModel
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,13 +79,14 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = strings()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Bimil",
+                        text = strings.appName,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -78,7 +94,7 @@ fun HomeScreen(
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
+                            contentDescription = strings.settings
                         )
                     }
                 },
@@ -94,7 +110,7 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add Account",
+                    contentDescription = strings.addAccount,
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
@@ -108,7 +124,7 @@ fun HomeScreen(
             SearchBar(
                 query = uiState.searchQuery,
                 onQueryChange = viewModel::onSearchQueryChange,
-                placeholder = "Search services..."
+                placeholder = strings.searchServices
             )
 
             // Category filter chips
@@ -141,7 +157,7 @@ fun HomeScreen(
                     if (favorites.isNotEmpty()) {
                         item {
                             Text(
-                                text = "Favorites",
+                                text = strings.favorites,
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold
@@ -149,7 +165,7 @@ fun HomeScreen(
                         }
 
                         items(favorites, key = { it.account.id }) { accountWithHint ->
-                            AccountCard(
+                            SwipeToDeleteAccountCard(
                                 accountWithHint = accountWithHint,
                                 onClick = { onNavigateToDetail(accountWithHint.account.id) },
                                 onFavoriteClick = {
@@ -157,6 +173,9 @@ fun HomeScreen(
                                         accountWithHint.account.id,
                                         accountWithHint.account.isFavorite
                                     )
+                                },
+                                onDelete = {
+                                    viewModel.deleteAccount(accountWithHint.account.id)
                                 }
                             )
                         }
@@ -169,7 +188,7 @@ fun HomeScreen(
                     if (nonFavorites.isNotEmpty()) {
                         item {
                             Text(
-                                text = "All (${uiState.filteredAccounts.size})",
+                                text = "${strings.all} (${uiState.filteredAccounts.size})",
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontWeight = FontWeight.SemiBold
@@ -177,7 +196,7 @@ fun HomeScreen(
                         }
 
                         items(nonFavorites, key = { it.account.id }) { accountWithHint ->
-                            AccountCard(
+                            SwipeToDeleteAccountCard(
                                 accountWithHint = accountWithHint,
                                 onClick = { onNavigateToDetail(accountWithHint.account.id) },
                                 onFavoriteClick = {
@@ -185,6 +204,9 @@ fun HomeScreen(
                                         accountWithHint.account.id,
                                         accountWithHint.account.isFavorite
                                     )
+                                },
+                                onDelete = {
+                                    viewModel.deleteAccount(accountWithHint.account.id)
                                 }
                             )
                         }
@@ -198,12 +220,116 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SwipeToDeleteAccountCard(
+    accountWithHint: AccountWithHint,
+    onClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val strings = strings()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { dismissValue ->
+            if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                showDeleteDialog = true
+                false // Don't dismiss yet, wait for confirmation
+            } else {
+                false
+            }
+        }
+    )
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+                scope.launch {
+                    dismissState.reset()
+                }
+            },
+            title = {
+                Text(text = strings.deleteAccount)
+            },
+            text = {
+                Text(text = strings.deleteAccountConfirm.replace("%s", accountWithHint.account.serviceName))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete()
+                    }
+                ) {
+                    Text(strings.delete, color = Color(0xFFFF5252))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        scope.launch {
+                            dismissState.reset()
+                        }
+                    }
+                ) {
+                    Text(strings.cancel)
+                }
+            }
+        )
+    }
+
+    SwipeToDismissBox(
+        state = dismissState,
+        enableDismissFromStartToEnd = false,
+        enableDismissFromEndToStart = true,
+        backgroundContent = {
+            val color by animateColorAsState(
+                when (dismissState.targetValue) {
+                    SwipeToDismissBoxValue.EndToStart -> Color(0xFFFF5252)
+                    else -> Color.Transparent
+                },
+                label = "delete_background_color"
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(color)
+                    .padding(horizontal = 20.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = strings.delete,
+                        tint = Color.White
+                    )
+                }
+            }
+        },
+        content = {
+            AccountCard(
+                accountWithHint = accountWithHint,
+                onClick = onClick,
+                onFavoriteClick = onFavoriteClick
+            )
+        }
+    )
+}
+
 @Composable
 private fun CategoryChips(
     categories: List<Category>,
     selectedCategoryId: String?,
     onCategorySelected: (String?) -> Unit
 ) {
+    val strings = strings()
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -212,7 +338,7 @@ private fun CategoryChips(
         item {
             AssistChip(
                 onClick = { onCategorySelected(null) },
-                label = { Text("All") },
+                label = { Text(strings.all) },
                 colors = AssistChipDefaults.assistChipColors(
                     containerColor = if (selectedCategoryId == null)
                         MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
@@ -250,6 +376,7 @@ private fun EmptyState(
     hasSearchQuery: Boolean,
     onAddClick: () -> Unit
 ) {
+    val strings = strings()
     if (hasSearchQuery) {
         // Search results empty state
         Box(
@@ -261,7 +388,7 @@ private fun EmptyState(
                 modifier = Modifier.padding(32.dp)
             ) {
                 Text(
-                    text = "No results found",
+                    text = strings.noResultsFound,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -269,7 +396,7 @@ private fun EmptyState(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Try a different search term",
+                    text = strings.tryDifferentSearch,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -284,6 +411,7 @@ private fun EmptyState(
 
 @Composable
 private fun WelcomeEmptyState() {
+    val strings = strings()
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -320,7 +448,7 @@ private fun WelcomeEmptyState() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Welcome",
+                            text = strings.welcome,
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -342,7 +470,7 @@ private fun WelcomeEmptyState() {
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
-                            text = "Add a New Bimil",
+                            text = strings.addNewBimil,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = BimilColors.Primary
@@ -351,7 +479,7 @@ private fun WelcomeEmptyState() {
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Tap the + button\nto add a new\npassword information",
+                            text = strings.welcomeMessage,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,

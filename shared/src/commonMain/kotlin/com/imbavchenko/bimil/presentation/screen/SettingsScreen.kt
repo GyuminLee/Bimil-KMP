@@ -43,6 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.imbavchenko.bimil.domain.model.Region
 import com.imbavchenko.bimil.domain.model.Theme
+import com.imbavchenko.bimil.presentation.localization.Language
+import com.imbavchenko.bimil.presentation.localization.strings
 import com.imbavchenko.bimil.presentation.viewmodel.SettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -54,13 +56,14 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = strings()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Settings",
+                        text = strings.settings,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -68,7 +71,7 @@ fun SettingsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = strings.back
                         )
                     }
                 },
@@ -87,16 +90,16 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Security Section
-            SettingsSection(title = "Security") {
+            SettingsSection(title = strings.security) {
                 SettingsRow(
-                    title = "PIN Lock",
-                    subtitle = if (uiState.settings.isPinEnabled) "Enabled" else "Disabled",
+                    title = strings.pinLock,
+                    subtitle = if (uiState.settings.isPinEnabled) strings.enabled else strings.disabled,
                     onClick = { /* TODO: Open PIN setup dialog */ }
                 )
 
                 SettingsRow(
-                    title = "Biometric Unlock",
-                    subtitle = "Use fingerprint or face",
+                    title = strings.biometricUnlock,
+                    subtitle = strings.biometricSubtitle,
                     trailing = {
                         Switch(
                             checked = uiState.settings.isBiometricEnabled,
@@ -107,23 +110,23 @@ fun SettingsScreen(
                 )
 
                 SettingsDropdownRow(
-                    title = "Auto-lock",
+                    title = strings.autoLock,
                     selected = when (uiState.settings.autoLockSeconds) {
-                        -1 -> "Never"
-                        0 -> "Immediately"
-                        30 -> "30 seconds"
-                        60 -> "1 minute"
-                        300 -> "5 minutes"
+                        -1 -> strings.never
+                        0 -> strings.immediately
+                        30 -> strings.seconds30
+                        60 -> strings.minute1
+                        300 -> strings.minutes5
                         else -> "${uiState.settings.autoLockSeconds}s"
                     },
-                    options = listOf("Never", "Immediately", "30 seconds", "1 minute", "5 minutes"),
+                    options = listOf(strings.never, strings.immediately, strings.seconds30, strings.minute1, strings.minutes5),
                     onSelect = { option ->
                         val seconds = when (option) {
-                            "Never" -> -1
-                            "Immediately" -> 0
-                            "30 seconds" -> 30
-                            "1 minute" -> 60
-                            "5 minutes" -> 300
+                            strings.never -> -1
+                            strings.immediately -> 0
+                            strings.seconds30 -> 30
+                            strings.minute1 -> 60
+                            strings.minutes5 -> 300
                             else -> -1
                         }
                         viewModel.updateAutoLock(seconds)
@@ -132,19 +135,19 @@ fun SettingsScreen(
             }
 
             // General Section
-            SettingsSection(title = "General") {
+            SettingsSection(title = strings.general) {
                 SettingsDropdownRow(
-                    title = "Theme",
+                    title = strings.theme,
                     selected = when (uiState.settings.theme) {
-                        Theme.LIGHT -> "Light"
-                        Theme.DARK -> "Dark"
-                        Theme.SYSTEM -> "System"
+                        Theme.LIGHT -> strings.light
+                        Theme.DARK -> strings.dark
+                        Theme.SYSTEM -> strings.system
                     },
-                    options = listOf("Light", "Dark", "System"),
+                    options = listOf(strings.light, strings.dark, strings.system),
                     onSelect = { option ->
                         val theme = when (option) {
-                            "Light" -> Theme.LIGHT
-                            "Dark" -> Theme.DARK
+                            strings.light -> Theme.LIGHT
+                            strings.dark -> Theme.DARK
                             else -> Theme.SYSTEM
                         }
                         viewModel.updateTheme(theme)
@@ -152,23 +155,32 @@ fun SettingsScreen(
                 )
 
                 SettingsDropdownRow(
-                    title = "Language",
+                    title = strings.language,
                     selected = when (uiState.settings.language) {
-                        "SYSTEM" -> "System"
-                        "ko" -> "Korean"
-                        "en" -> "English"
-                        "ja" -> "Japanese"
-                        "zh" -> "Chinese"
+                        "SYSTEM" -> strings.system
+                        "ko" -> Language.KOREAN.nativeName
+                        "en" -> Language.ENGLISH.nativeName
+                        "ja" -> Language.JAPANESE.nativeName
+                        "zh" -> Language.CHINESE.nativeName
+                        "de" -> Language.GERMAN.nativeName
                         else -> uiState.settings.language
                     },
-                    options = listOf("System", "English", "Korean", "Japanese", "Chinese"),
+                    options = listOf(
+                        strings.system,
+                        Language.ENGLISH.nativeName,
+                        Language.KOREAN.nativeName,
+                        Language.JAPANESE.nativeName,
+                        Language.CHINESE.nativeName,
+                        Language.GERMAN.nativeName
+                    ),
                     onSelect = { option ->
                         val language = when (option) {
-                            "System" -> "SYSTEM"
-                            "English" -> "en"
-                            "Korean" -> "ko"
-                            "Japanese" -> "ja"
-                            "Chinese" -> "zh"
+                            strings.system -> "SYSTEM"
+                            Language.ENGLISH.nativeName -> "en"
+                            Language.KOREAN.nativeName -> "ko"
+                            Language.JAPANESE.nativeName -> "ja"
+                            Language.CHINESE.nativeName -> "zh"
+                            Language.GERMAN.nativeName -> "de"
                             else -> "SYSTEM"
                         }
                         viewModel.updateLanguage(language)
@@ -176,7 +188,7 @@ fun SettingsScreen(
                 )
 
                 SettingsDropdownRow(
-                    title = "Region",
+                    title = strings.region,
                     selected = uiState.settings.region.displayName,
                     options = Region.entries.map { it.displayName },
                     onSelect = { option ->
@@ -187,46 +199,46 @@ fun SettingsScreen(
             }
 
             // Data Section
-            SettingsSection(title = "Data") {
+            SettingsSection(title = strings.data) {
                 SettingsRow(
-                    title = "Saved Items",
-                    subtitle = "${uiState.accountCount} items"
+                    title = strings.savedItems,
+                    subtitle = "${uiState.accountCount} ${strings.items}"
                 )
 
                 SettingsRow(
-                    title = "Create Backup",
-                    subtitle = "Export encrypted backup file",
+                    title = strings.createBackup,
+                    subtitle = strings.createBackupSubtitle,
                     onClick = onNavigateToBackup
                 )
 
                 SettingsRow(
-                    title = "Restore Backup",
-                    subtitle = "Import from backup file",
+                    title = strings.restoreBackup,
+                    subtitle = strings.restoreBackupSubtitle,
                     onClick = onNavigateToBackup
                 )
 
                 SettingsRow(
-                    title = "Delete All Data",
-                    subtitle = "This cannot be undone",
+                    title = strings.deleteAllData,
+                    subtitle = strings.deleteAllDataSubtitle,
                     titleColor = MaterialTheme.colorScheme.error,
                     onClick = { /* TODO: Show confirmation dialog */ }
                 )
             }
 
             // About Section
-            SettingsSection(title = "About") {
+            SettingsSection(title = strings.about) {
                 SettingsRow(
-                    title = "Version",
+                    title = strings.version,
                     subtitle = "1.1.0"
                 )
 
                 SettingsRow(
-                    title = "Privacy Policy",
+                    title = strings.privacyPolicy,
                     onClick = { /* TODO: Open privacy policy */ }
                 )
 
                 SettingsRow(
-                    title = "Open Source Licenses",
+                    title = strings.openSourceLicenses,
                     onClick = { /* TODO: Open licenses */ }
                 )
             }
