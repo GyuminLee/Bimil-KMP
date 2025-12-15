@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
@@ -66,7 +67,11 @@ fun BimilApp(
     // Check if we should show lock screen
     val isPinEnabled = settings?.isPinEnabled == true
     val isBiometricEnabled = settings?.isBiometricEnabled == true
-    val isBiometricAvailable = remember { biometricService.isBiometricAvailable() }
+    // Don't use remember - check on every recomposition
+    val isBiometricAvailable = biometricService.isBiometricAvailable()
+
+    // Use rememberUpdatedState to capture latest isPinEnabled in callback
+    val currentIsPinEnabled by rememberUpdatedState(isPinEnabled)
 
     // Handle lock state based on PIN setting
     LaunchedEffect(isPinEnabled) {
@@ -85,8 +90,8 @@ fun BimilApp(
                     wasInBackground = true
                 }
                 Lifecycle.Event.ON_START -> {
-                    // App came back from background
-                    if (wasInBackground && isPinEnabled) {
+                    // App came back from background - use currentIsPinEnabled for latest value
+                    if (wasInBackground && currentIsPinEnabled) {
                         isLocked = true
                     }
                     wasInBackground = false
