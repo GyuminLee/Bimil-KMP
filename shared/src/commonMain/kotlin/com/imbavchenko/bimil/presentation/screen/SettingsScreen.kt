@@ -145,30 +145,6 @@ fun SettingsScreen(
                         )
                     }
                 )
-
-                SettingsDropdownRow(
-                    title = strings.autoLock,
-                    selected = when (uiState.settings.autoLockSeconds) {
-                        -1 -> strings.never
-                        0 -> strings.immediately
-                        30 -> strings.seconds30
-                        60 -> strings.minute1
-                        300 -> strings.minutes5
-                        else -> "${uiState.settings.autoLockSeconds}s"
-                    },
-                    options = listOf(strings.never, strings.immediately, strings.seconds30, strings.minute1, strings.minutes5),
-                    onSelect = { option ->
-                        val seconds = when (option) {
-                            strings.never -> -1
-                            strings.immediately -> 0
-                            strings.seconds30 -> 30
-                            strings.minute1 -> 60
-                            strings.minutes5 -> 300
-                            else -> -1
-                        }
-                        viewModel.updateAutoLock(seconds)
-                    }
-                )
             }
 
             // General Section

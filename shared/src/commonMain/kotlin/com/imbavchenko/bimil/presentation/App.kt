@@ -56,17 +56,24 @@ fun BimilApp(
 
     // Lock state - starts locked if PIN is enabled
     var isLocked by remember { mutableStateOf(true) }
+    var hasUnlockedOnce by remember { mutableStateOf(false) }
 
     // Check if we should show lock screen
     val isPinEnabled = settings?.isPinEnabled == true
     val isBiometricEnabled = settings?.isBiometricEnabled == true
     val isBiometricAvailable = remember { biometricService.isBiometricAvailable() }
 
-    // Auto-unlock if PIN is not enabled
+    // Handle lock state based on PIN setting
     LaunchedEffect(isPinEnabled) {
         if (!isPinEnabled) {
+            // PIN disabled - unlock
             isLocked = false
+            hasUnlockedOnce = false
+        } else if (!hasUnlockedOnce) {
+            // PIN enabled and never unlocked in this session - stay locked
+            isLocked = true
         }
+        // If PIN is enabled but user already unlocked once, stay unlocked until app restart
     }
 
     val isDarkTheme = when (settings?.theme) {
@@ -93,7 +100,10 @@ fun BimilApp(
                         biometricService = biometricService,
                         isBiometricAvailable = isBiometricAvailable,
                         isBiometricEnabled = isBiometricEnabled,
-                        onUnlock = { isLocked = false }
+                        onUnlock = {
+                            isLocked = false
+                            hasUnlockedOnce = true
+                        }
                     )
                 } else {
                     // Main app content
