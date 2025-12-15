@@ -77,6 +77,10 @@ class CategoryRepositoryImpl(
         queries.deleteCategory(id)
     }
 
+    override suspend fun deleteAllNonDefaultCategories() = withContext(Dispatchers.IO) {
+        queries.deleteAllNonDefaultCategories()
+    }
+
     override suspend fun initializeDefaultCategories() = withContext(Dispatchers.IO) {
         val now = Clock.System.now().toEpochMilliseconds()
         Category.DEFAULT_CATEGORIES.forEach { category ->

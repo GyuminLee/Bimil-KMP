@@ -14,6 +14,7 @@ import com.imbavchenko.bimil.domain.repository.SettingsRepository
 import com.imbavchenko.bimil.domain.usecase.ClearPinUseCase
 import com.imbavchenko.bimil.domain.usecase.CreateBackupUseCase
 import com.imbavchenko.bimil.domain.usecase.DeleteAccountUseCase
+import com.imbavchenko.bimil.domain.usecase.DeleteAllDataUseCase
 import com.imbavchenko.bimil.domain.usecase.DeleteCategoryUseCase
 import com.imbavchenko.bimil.domain.usecase.GetAccountCountUseCase
 import com.imbavchenko.bimil.domain.usecase.GetAccountWithHintUseCase
@@ -91,6 +92,7 @@ val domainModule = module {
     // Backup Use Cases
     factoryOf(::CreateBackupUseCase)
     factoryOf(::RestoreBackupUseCase)
+    factoryOf(::DeleteAllDataUseCase)
 }
 
 val presentationModule = module {

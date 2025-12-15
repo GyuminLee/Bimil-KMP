@@ -5,9 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.imbavchenko.bimil.domain.model.AppSettings
 import com.imbavchenko.bimil.domain.model.Region
 import com.imbavchenko.bimil.domain.model.Theme
+import com.imbavchenko.bimil.domain.repository.RestoreResult
 import com.imbavchenko.bimil.domain.usecase.ClearPinUseCase
+import com.imbavchenko.bimil.domain.usecase.CreateBackupUseCase
+import com.imbavchenko.bimil.domain.usecase.DeleteAllDataUseCase
 import com.imbavchenko.bimil.domain.usecase.GetAccountCountUseCase
 import com.imbavchenko.bimil.domain.usecase.GetSettingsUseCase
+import com.imbavchenko.bimil.domain.usecase.RestoreBackupUseCase
 import com.imbavchenko.bimil.domain.usecase.SetPinUseCase
 import com.imbavchenko.bimil.domain.usecase.VerifyPinUseCase
 import com.imbavchenko.bimil.domain.usecase.UpdateAutoLockUseCase
@@ -25,7 +29,16 @@ import kotlinx.coroutines.launch
 data class SettingsUiState(
     val settings: AppSettings = AppSettings(),
     val accountCount: Long = 0,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val backupInProgress: Boolean = false,
+    val restoreInProgress: Boolean = false,
+    val deleteInProgress: Boolean = false,
+    val operationResult: OperationResult? = null
+)
+
+data class OperationResult(
+    val success: Boolean,
+    val message: String
 )
 
 class SettingsViewModel(
@@ -38,7 +51,10 @@ class SettingsViewModel(
     private val clearPinUseCase: ClearPinUseCase,
     private val updateBiometricUseCase: UpdateBiometricUseCase,
     private val updateAutoLockUseCase: UpdateAutoLockUseCase,
-    private val getAccountCountUseCase: GetAccountCountUseCase
+    private val getAccountCountUseCase: GetAccountCountUseCase,
+    private val createBackupUseCase: CreateBackupUseCase,
+    private val restoreBackupUseCase: RestoreBackupUseCase,
+    private val deleteAllDataUseCase: DeleteAllDataUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -109,5 +125,74 @@ class SettingsViewModel(
         viewModelScope.launch {
             updateAutoLockUseCase(seconds)
         }
+    }
+
+    suspend fun createBackup(password: String): ByteArray? {
+        return try {
+            _uiState.update { it.copy(backupInProgress = true) }
+            val data = createBackupUseCase(password)
+            _uiState.update { it.copy(backupInProgress = false) }
+            data
+        } catch (e: Exception) {
+            _uiState.update {
+                it.copy(
+                    backupInProgress = false,
+                    operationResult = OperationResult(false, e.message ?: "Backup failed")
+                )
+            }
+            null
+        }
+    }
+
+    suspend fun restoreBackup(data: ByteArray, password: String): RestoreResult {
+        return try {
+            _uiState.update { it.copy(restoreInProgress = true) }
+            val result = restoreBackupUseCase(data, password, merge = false)
+            _uiState.update {
+                it.copy(
+                    restoreInProgress = false,
+                    operationResult = if (result.success) {
+                        OperationResult(true, "Restored ${result.accountsRestored} accounts")
+                    } else {
+                        OperationResult(false, result.error ?: "Restore failed")
+                    }
+                )
+            }
+            result
+        } catch (e: Exception) {
+            _uiState.update {
+                it.copy(
+                    restoreInProgress = false,
+                    operationResult = OperationResult(false, e.message ?: "Restore failed")
+                )
+            }
+            RestoreResult(false, 0, 0, e.message)
+        }
+    }
+
+    fun deleteAllData() {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(deleteInProgress = true) }
+                deleteAllDataUseCase()
+                _uiState.update {
+                    it.copy(
+                        deleteInProgress = false,
+                        operationResult = OperationResult(true, "All data deleted")
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        deleteInProgress = false,
+                        operationResult = OperationResult(false, e.message ?: "Delete failed")
+                    )
+                }
+            }
+        }
+    }
+
+    fun clearOperationResult() {
+        _uiState.update { it.copy(operationResult = null) }
     }
 }

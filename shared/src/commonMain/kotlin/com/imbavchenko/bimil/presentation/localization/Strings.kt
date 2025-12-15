@@ -122,7 +122,16 @@ data class Strings(
     val biometricNotAvailable: String,
     val pinRequired: String,
     val pinSetSuccess: String,
-    val pinRemoved: String
+    val pinRemoved: String,
+
+    // Backup/Restore
+    val enterBackupPassword: String,
+    val confirmPassword: String,
+    val passwordMismatch: String,
+    val deleteAllDataConfirm: String,
+    val confirm: String,
+    val backupSuccess: String,
+    val restoreSuccess: String
 )
 
 val EnglishStrings = Strings(
@@ -242,7 +251,16 @@ val EnglishStrings = Strings(
     biometricNotAvailable = "Biometric not available",
     pinRequired = "PIN is required to enable biometric",
     pinSetSuccess = "PIN set successfully",
-    pinRemoved = "PIN removed"
+    pinRemoved = "PIN removed",
+
+    // Backup/Restore
+    enterBackupPassword = "Enter a password to encrypt your backup",
+    confirmPassword = "Confirm Password",
+    passwordMismatch = "Passwords do not match",
+    deleteAllDataConfirm = "Are you sure you want to delete all data? This action cannot be undone.",
+    confirm = "Confirm",
+    backupSuccess = "Backup created successfully",
+    restoreSuccess = "Data restored successfully"
 )
 
 val KoreanStrings = Strings(
@@ -362,7 +380,16 @@ val KoreanStrings = Strings(
     biometricNotAvailable = "생체인식을 사용할 수 없습니다",
     pinRequired = "생체인식을 활성화하려면 PIN이 필요합니다",
     pinSetSuccess = "PIN이 설정되었습니다",
-    pinRemoved = "PIN이 제거되었습니다"
+    pinRemoved = "PIN이 제거되었습니다",
+
+    // Backup/Restore
+    enterBackupPassword = "백업을 암호화할 비밀번호를 입력하세요",
+    confirmPassword = "비밀번호 확인",
+    passwordMismatch = "비밀번호가 일치하지 않습니다",
+    deleteAllDataConfirm = "모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+    confirm = "확인",
+    backupSuccess = "백업이 생성되었습니다",
+    restoreSuccess = "데이터가 복원되었습니다"
 )
 
 val JapaneseStrings = Strings(
@@ -482,7 +509,16 @@ val JapaneseStrings = Strings(
     biometricNotAvailable = "生体認証は利用できません",
     pinRequired = "生体認証を有効にするにはPINが必要です",
     pinSetSuccess = "PINが設定されました",
-    pinRemoved = "PINが削除されました"
+    pinRemoved = "PINが削除されました",
+
+    // Backup/Restore
+    enterBackupPassword = "バックアップを暗号化するパスワードを入力してください",
+    confirmPassword = "パスワード確認",
+    passwordMismatch = "パスワードが一致しません",
+    deleteAllDataConfirm = "すべてのデータを削除してもよろしいですか？この操作は元に戻せません。",
+    confirm = "確認",
+    backupSuccess = "バックアップが作成されました",
+    restoreSuccess = "データが復元されました"
 )
 
 val ChineseStrings = Strings(
@@ -602,7 +638,16 @@ val ChineseStrings = Strings(
     biometricNotAvailable = "生物识别不可用",
     pinRequired = "启用生物识别需要先设置PIN",
     pinSetSuccess = "PIN设置成功",
-    pinRemoved = "PIN已移除"
+    pinRemoved = "PIN已移除",
+
+    // Backup/Restore
+    enterBackupPassword = "输入密码以加密您的备份",
+    confirmPassword = "确认密码",
+    passwordMismatch = "密码不匹配",
+    deleteAllDataConfirm = "您确定要删除所有数据吗？此操作无法撤销。",
+    confirm = "确认",
+    backupSuccess = "备份创建成功",
+    restoreSuccess = "数据恢复成功"
 )
 
 val GermanStrings = Strings(
@@ -722,7 +767,16 @@ val GermanStrings = Strings(
     biometricNotAvailable = "Biometrie nicht verfugbar",
     pinRequired = "PIN erforderlich fur Biometrie",
     pinSetSuccess = "PIN erfolgreich festgelegt",
-    pinRemoved = "PIN entfernt"
+    pinRemoved = "PIN entfernt",
+
+    // Backup/Restore
+    enterBackupPassword = "Geben Sie ein Passwort ein, um Ihre Sicherung zu verschlusseln",
+    confirmPassword = "Passwort bestatigen",
+    passwordMismatch = "Passworter stimmen nicht uberein",
+    deleteAllDataConfirm = "Sind Sie sicher, dass Sie alle Daten loschen mochten? Diese Aktion kann nicht ruckgangig gemacht werden.",
+    confirm = "Bestatigen",
+    backupSuccess = "Sicherung erfolgreich erstellt",
+    restoreSuccess = "Daten erfolgreich wiederhergestellt"
 )
 
 fun getStrings(language: Language): Strings {

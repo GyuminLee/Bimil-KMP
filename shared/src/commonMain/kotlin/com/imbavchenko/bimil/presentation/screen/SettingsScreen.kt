@@ -11,26 +11,34 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,8 +47,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.imbavchenko.bimil.data.biometric.BiometricService
 import com.imbavchenko.bimil.domain.model.Region
@@ -57,18 +66,40 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToBackup: () -> Unit = {},
+    onCreateBackup: (ByteArray, String) -> Unit = { _, _ -> }, // data, fileName
+    onSelectBackupFile: () -> Unit = {},
+    pendingRestoreData: ByteArray? = null,
+    onRestoreComplete: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel(),
     biometricService: BiometricService = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val strings = strings()
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var showPinDialog by remember { mutableStateOf(false) }
     var showPinSetupForEnable by remember { mutableStateOf(false) }
+    var showBackupPasswordDialog by remember { mutableStateOf(false) }
+    var showRestorePasswordDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     // Don't use remember - check every recomposition to handle Activity lifecycle
     val isBiometricAvailable = biometricService.isBiometricAvailable()
+
+    // Handle pending restore data
+    LaunchedEffect(pendingRestoreData) {
+        if (pendingRestoreData != null) {
+            showRestorePasswordDialog = true
+        }
+    }
+
+    // Show operation results
+    LaunchedEffect(uiState.operationResult) {
+        uiState.operationResult?.let { result ->
+            snackbarHostState.showSnackbar(result.message)
+            viewModel.clearOperationResult()
+        }
+    }
 
     // PIN Setup Dialog for changing PIN
     PinSetupDialog(
@@ -103,7 +134,70 @@ fun SettingsScreen(
         onVerifyCurrentPin = { false }
     )
 
+    // Backup Password Dialog
+    if (showBackupPasswordDialog) {
+        PasswordInputDialog(
+            title = strings.createBackup,
+            message = strings.enterBackupPassword,
+            onDismiss = { showBackupPasswordDialog = false },
+            onConfirm = { password ->
+                showBackupPasswordDialog = false
+                scope.launch {
+                    val data = viewModel.createBackup(password)
+                    if (data != null) {
+                        val fileName = "bimil_backup_${System.currentTimeMillis()}.bak"
+                        onCreateBackup(data, fileName)
+                    }
+                }
+            }
+        )
+    }
+
+    // Restore Password Dialog
+    if (showRestorePasswordDialog && pendingRestoreData != null) {
+        PasswordInputDialog(
+            title = strings.restoreBackup,
+            message = strings.enterBackupPassword,
+            onDismiss = {
+                showRestorePasswordDialog = false
+                onRestoreComplete()
+            },
+            onConfirm = { password ->
+                showRestorePasswordDialog = false
+                scope.launch {
+                    viewModel.restoreBackup(pendingRestoreData, password)
+                    onRestoreComplete()
+                }
+            }
+        )
+    }
+
+    // Delete All Data Confirmation Dialog
+    if (showDeleteConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmDialog = false },
+            title = { Text(strings.deleteAllData) },
+            text = { Text(strings.deleteAllDataConfirm) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirmDialog = false
+                        viewModel.deleteAllData()
+                    }
+                ) {
+                    Text(strings.delete, color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                    Text(strings.cancel)
+                }
+            }
+        )
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -258,20 +352,23 @@ fun SettingsScreen(
                 SettingsRow(
                     title = strings.createBackup,
                     subtitle = strings.createBackupSubtitle,
-                    onClick = onNavigateToBackup
+                    onClick = { showBackupPasswordDialog = true },
+                    enabled = !uiState.backupInProgress
                 )
 
                 SettingsRow(
                     title = strings.restoreBackup,
                     subtitle = strings.restoreBackupSubtitle,
-                    onClick = onNavigateToBackup
+                    onClick = onSelectBackupFile,
+                    enabled = !uiState.restoreInProgress
                 )
 
                 SettingsRow(
                     title = strings.deleteAllData,
                     subtitle = strings.deleteAllDataSubtitle,
                     titleColor = MaterialTheme.colorScheme.error,
-                    onClick = { /* TODO: Show confirmation dialog */ }
+                    onClick = { showDeleteConfirmDialog = true },
+                    enabled = !uiState.deleteInProgress
                 )
             }
 
@@ -329,13 +426,21 @@ private fun SettingsRow(
     subtitle: String? = null,
     titleColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
     trailing: @Composable (() -> Unit)? = null,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    enabled: Boolean = true
 ) {
+    val actualTitleColor = if (enabled) titleColor else titleColor.copy(alpha = 0.5f)
+    val actualSubtitleColor = if (enabled) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .then(
-                if (onClick != null) Modifier.clickable(onClick = onClick)
+                if (onClick != null && enabled) Modifier.clickable(onClick = onClick)
                 else Modifier
             )
             .padding(vertical = 8.dp),
@@ -346,13 +451,13 @@ private fun SettingsRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = titleColor
+                color = actualTitleColor
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = actualSubtitleColor
                 )
             }
         }
@@ -363,7 +468,8 @@ private fun SettingsRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant
+                       else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
         }
     }
@@ -436,4 +542,78 @@ private fun SettingsDropdownRow(
             }
         }
     }
+}
+
+@Composable
+private fun PasswordInputDialog(
+    title: String,
+    message: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+    val strings = strings()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(message)
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        showError = false
+                    },
+                    label = { Text(strings.password) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = {
+                        confirmPassword = it
+                        showError = false
+                    },
+                    label = { Text(strings.confirmPassword) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    singleLine = true,
+                    isError = showError,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (showError) {
+                    Text(
+                        text = strings.passwordMismatch,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (password == confirmPassword && password.isNotEmpty()) {
+                        onConfirm(password)
+                    } else {
+                        showError = true
+                    }
+                },
+                enabled = password.isNotEmpty() && confirmPassword.isNotEmpty()
+            ) {
+                Text(strings.confirm)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(strings.cancel)
+            }
+        }
+    )
 }

@@ -12,5 +12,6 @@ interface CategoryRepository {
     suspend fun insertCategory(category: Category)
     suspend fun updateCategory(category: Category)
     suspend fun deleteCategory(id: String, defaultCategoryId: String)
+    suspend fun deleteAllNonDefaultCategories()
     suspend fun initializeDefaultCategories()
 }

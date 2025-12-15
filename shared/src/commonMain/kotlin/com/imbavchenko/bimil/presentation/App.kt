@@ -32,6 +32,7 @@ import com.imbavchenko.bimil.presentation.localization.Language
 import com.imbavchenko.bimil.presentation.localization.ProvideStrings
 import com.imbavchenko.bimil.presentation.localization.strings
 import com.imbavchenko.bimil.presentation.navigation.Screen
+import com.imbavchenko.bimil.presentation.component.rememberFilePickerLaunchers
 import com.imbavchenko.bimil.presentation.screen.AddEditAccountScreen
 import com.imbavchenko.bimil.presentation.screen.HomeScreen
 import com.imbavchenko.bimil.presentation.screen.LockScreen
@@ -171,9 +172,30 @@ fun BimilApp(
                         }
 
                         composable<Screen.Settings> {
+                            var pendingRestoreData by remember { mutableStateOf<ByteArray?>(null) }
+
+                            val filePickerLaunchers = rememberFilePickerLaunchers(
+                                onFileSaved = { success ->
+                                    // File saved callback - can show snackbar if needed
+                                },
+                                onFileSelected = { data ->
+                                    pendingRestoreData = data
+                                }
+                            )
+
                             SettingsScreen(
                                 onNavigateBack = {
                                     navController.popBackStack()
+                                },
+                                onCreateBackup = { data, fileName ->
+                                    filePickerLaunchers.launchFileSaver(data, fileName)
+                                },
+                                onSelectBackupFile = {
+                                    filePickerLaunchers.launchFilePicker()
+                                },
+                                pendingRestoreData = pendingRestoreData,
+                                onRestoreComplete = {
+                                    pendingRestoreData = null
                                 }
                             )
                         }

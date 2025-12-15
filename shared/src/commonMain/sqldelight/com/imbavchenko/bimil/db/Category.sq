@@ -27,6 +27,9 @@ UPDATE category SET name = ?, color = ?, icon = ?, sort_order = ? WHERE id = ?;
 deleteCategory:
 DELETE FROM category WHERE id = ? AND is_default = 0;
 
+deleteAllNonDefaultCategories:
+DELETE FROM category WHERE is_default = 0;
+
 getCategoryCount:
 SELECT COUNT(*) FROM category;
 
