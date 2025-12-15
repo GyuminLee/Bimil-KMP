@@ -35,17 +35,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.imbavchenko.bimil.data.biometric.BiometricService
 import com.imbavchenko.bimil.domain.model.Region
 import com.imbavchenko.bimil.domain.model.Theme
+import com.imbavchenko.bimil.presentation.component.PinSetupDialog
 import com.imbavchenko.bimil.presentation.localization.Language
 import com.imbavchenko.bimil.presentation.localization.strings
 import com.imbavchenko.bimil.presentation.viewmodel.SettingsViewModel
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,10 +58,35 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToBackup: () -> Unit = {},
-    viewModel: SettingsViewModel = koinViewModel()
+    viewModel: SettingsViewModel = koinViewModel(),
+    biometricService: BiometricService = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val strings = strings()
+    val scope = rememberCoroutineScope()
+
+    var showPinDialog by remember { mutableStateOf(false) }
+    val isBiometricAvailable = remember { biometricService.isBiometricAvailable() }
+
+    // PIN Setup Dialog
+    PinSetupDialog(
+        isVisible = showPinDialog,
+        isPinEnabled = uiState.settings.isPinEnabled,
+        onDismiss = { showPinDialog = false },
+        onPinSet = { pin ->
+            viewModel.setPin(pin)
+        },
+        onPinRemove = {
+            viewModel.clearPin()
+            // Also disable biometric when PIN is removed
+            if (uiState.settings.isBiometricEnabled) {
+                viewModel.updateBiometric(false)
+            }
+        },
+        onVerifyCurrentPin = { pin ->
+            viewModel.verifyPin(pin)
+        }
+    )
 
     Scaffold(
         topBar = {
@@ -94,17 +124,24 @@ fun SettingsScreen(
                 SettingsRow(
                     title = strings.pinLock,
                     subtitle = if (uiState.settings.isPinEnabled) strings.enabled else strings.disabled,
-                    onClick = { /* TODO: Open PIN setup dialog */ }
+                    onClick = { showPinDialog = true }
                 )
 
                 SettingsRow(
                     title = strings.biometricUnlock,
-                    subtitle = strings.biometricSubtitle,
+                    subtitle = if (!isBiometricAvailable) strings.biometricNotAvailable else strings.biometricSubtitle,
                     trailing = {
                         Switch(
                             checked = uiState.settings.isBiometricEnabled,
-                            onCheckedChange = { viewModel.updateBiometric(it) },
-                            enabled = uiState.settings.isPinEnabled
+                            onCheckedChange = { enabled ->
+                                if (enabled && !uiState.settings.isPinEnabled) {
+                                    // Show PIN setup first
+                                    showPinDialog = true
+                                } else {
+                                    viewModel.updateBiometric(enabled)
+                                }
+                            },
+                            enabled = uiState.settings.isPinEnabled && isBiometricAvailable
                         )
                     }
                 )

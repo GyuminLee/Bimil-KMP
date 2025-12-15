@@ -102,7 +102,25 @@ data class Strings(
     val note: String,
     val removeFromFavorites: String,
     val addToFavorites: String,
-    val digitPlus: String
+    val digitPlus: String,
+
+    // PIN / Lock Screen
+    val enterPin: String,
+    val setPin: String,
+    val confirmPin: String,
+    val changePin: String,
+    val removePin: String,
+    val pinMismatch: String,
+    val pinTooShort: String,
+    val wrongPin: String,
+    val unlockBimil: String,
+    val useBiometric: String,
+    val biometricPromptTitle: String,
+    val biometricPromptSubtitle: String,
+    val biometricNotAvailable: String,
+    val pinRequired: String,
+    val pinSetSuccess: String,
+    val pinRemoved: String
 )
 
 val EnglishStrings = Strings(
@@ -202,7 +220,25 @@ val EnglishStrings = Strings(
     note = "Note",
     removeFromFavorites = "Remove from favorites",
     addToFavorites = "Add to favorites",
-    digitPlus = "digit+"
+    digitPlus = "digit+",
+
+    // PIN / Lock Screen
+    enterPin = "Enter PIN",
+    setPin = "Set PIN",
+    confirmPin = "Confirm PIN",
+    changePin = "Change PIN",
+    removePin = "Remove PIN",
+    pinMismatch = "PINs do not match",
+    pinTooShort = "PIN must be at least 4 digits",
+    wrongPin = "Incorrect PIN",
+    unlockBimil = "Unlock Bimil",
+    useBiometric = "Use biometric",
+    biometricPromptTitle = "Biometric Authentication",
+    biometricPromptSubtitle = "Verify your identity",
+    biometricNotAvailable = "Biometric not available",
+    pinRequired = "PIN is required to enable biometric",
+    pinSetSuccess = "PIN set successfully",
+    pinRemoved = "PIN removed"
 )
 
 val KoreanStrings = Strings(
@@ -302,7 +338,25 @@ val KoreanStrings = Strings(
     note = "메모",
     removeFromFavorites = "즐겨찾기에서 제거",
     addToFavorites = "즐겨찾기에 추가",
-    digitPlus = "자리+"
+    digitPlus = "자리+",
+
+    // PIN / Lock Screen
+    enterPin = "PIN 입력",
+    setPin = "PIN 설정",
+    confirmPin = "PIN 확인",
+    changePin = "PIN 변경",
+    removePin = "PIN 제거",
+    pinMismatch = "PIN이 일치하지 않습니다",
+    pinTooShort = "PIN은 최소 4자리여야 합니다",
+    wrongPin = "잘못된 PIN",
+    unlockBimil = "Bimil 잠금해제",
+    useBiometric = "생체인식 사용",
+    biometricPromptTitle = "생체인식 인증",
+    biometricPromptSubtitle = "본인 확인",
+    biometricNotAvailable = "생체인식을 사용할 수 없습니다",
+    pinRequired = "생체인식을 활성화하려면 PIN이 필요합니다",
+    pinSetSuccess = "PIN이 설정되었습니다",
+    pinRemoved = "PIN이 제거되었습니다"
 )
 
 val JapaneseStrings = Strings(
@@ -402,7 +456,25 @@ val JapaneseStrings = Strings(
     note = "メモ",
     removeFromFavorites = "お気に入りから削除",
     addToFavorites = "お気に入りに追加",
-    digitPlus = "桁+"
+    digitPlus = "桁+",
+
+    // PIN / Lock Screen
+    enterPin = "PINを入力",
+    setPin = "PINを設定",
+    confirmPin = "PINを確認",
+    changePin = "PINを変更",
+    removePin = "PINを削除",
+    pinMismatch = "PINが一致しません",
+    pinTooShort = "PINは4桁以上必要です",
+    wrongPin = "PINが間違っています",
+    unlockBimil = "Bimilのロック解除",
+    useBiometric = "生体認証を使用",
+    biometricPromptTitle = "生体認証",
+    biometricPromptSubtitle = "本人確認",
+    biometricNotAvailable = "生体認証は利用できません",
+    pinRequired = "生体認証を有効にするにはPINが必要です",
+    pinSetSuccess = "PINが設定されました",
+    pinRemoved = "PINが削除されました"
 )
 
 val ChineseStrings = Strings(
@@ -502,7 +574,25 @@ val ChineseStrings = Strings(
     note = "备注",
     removeFromFavorites = "从收藏夹移除",
     addToFavorites = "添加到收藏夹",
-    digitPlus = "位+"
+    digitPlus = "位+",
+
+    // PIN / Lock Screen
+    enterPin = "输入PIN",
+    setPin = "设置PIN",
+    confirmPin = "确认PIN",
+    changePin = "更改PIN",
+    removePin = "移除PIN",
+    pinMismatch = "PIN不匹配",
+    pinTooShort = "PIN必须至少4位数",
+    wrongPin = "PIN错误",
+    unlockBimil = "解锁Bimil",
+    useBiometric = "使用生物识别",
+    biometricPromptTitle = "生物识别认证",
+    biometricPromptSubtitle = "验证您的身份",
+    biometricNotAvailable = "生物识别不可用",
+    pinRequired = "启用生物识别需要先设置PIN",
+    pinSetSuccess = "PIN设置成功",
+    pinRemoved = "PIN已移除"
 )
 
 val GermanStrings = Strings(
@@ -602,7 +692,25 @@ val GermanStrings = Strings(
     note = "Notiz",
     removeFromFavorites = "Aus Favoriten entfernen",
     addToFavorites = "Zu Favoriten hinzufugen",
-    digitPlus = "Stellen+"
+    digitPlus = "Stellen+",
+
+    // PIN / Lock Screen
+    enterPin = "PIN eingeben",
+    setPin = "PIN festlegen",
+    confirmPin = "PIN bestatigen",
+    changePin = "PIN andern",
+    removePin = "PIN entfernen",
+    pinMismatch = "PINs stimmen nicht uberein",
+    pinTooShort = "PIN muss mindestens 4 Ziffern haben",
+    wrongPin = "Falsche PIN",
+    unlockBimil = "Bimil entsperren",
+    useBiometric = "Biometrie verwenden",
+    biometricPromptTitle = "Biometrische Authentifizierung",
+    biometricPromptSubtitle = "Identitat bestatigen",
+    biometricNotAvailable = "Biometrie nicht verfugbar",
+    pinRequired = "PIN erforderlich fur Biometrie",
+    pinSetSuccess = "PIN erfolgreich festgelegt",
+    pinRemoved = "PIN entfernt"
 )
 
 fun getStrings(language: Language): Strings {

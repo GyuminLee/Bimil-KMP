@@ -99,4 +99,4 @@ val presentationModule = module {
     viewModelOf(::SettingsViewModel)
 }
 
-val sharedModules = listOf(dataModule, domainModule, presentationModule)
+val sharedModules = listOf(dataModule, domainModule, presentationModule, platformModule)

@@ -9,6 +9,7 @@ import com.imbavchenko.bimil.domain.usecase.ClearPinUseCase
 import com.imbavchenko.bimil.domain.usecase.GetAccountCountUseCase
 import com.imbavchenko.bimil.domain.usecase.GetSettingsUseCase
 import com.imbavchenko.bimil.domain.usecase.SetPinUseCase
+import com.imbavchenko.bimil.domain.usecase.VerifyPinUseCase
 import com.imbavchenko.bimil.domain.usecase.UpdateAutoLockUseCase
 import com.imbavchenko.bimil.domain.usecase.UpdateBiometricUseCase
 import com.imbavchenko.bimil.domain.usecase.UpdateLanguageUseCase
@@ -33,6 +34,7 @@ class SettingsViewModel(
     private val updateLanguageUseCase: UpdateLanguageUseCase,
     private val updateRegionUseCase: UpdateRegionUseCase,
     private val setPinUseCase: SetPinUseCase,
+    private val verifyPinUseCase: VerifyPinUseCase,
     private val clearPinUseCase: ClearPinUseCase,
     private val updateBiometricUseCase: UpdateBiometricUseCase,
     private val updateAutoLockUseCase: UpdateAutoLockUseCase,
@@ -85,6 +87,10 @@ class SettingsViewModel(
         viewModelScope.launch {
             setPinUseCase(pin)
         }
+    }
+
+    suspend fun verifyPin(pin: String): Boolean {
+        return verifyPinUseCase(pin)
     }
 
     fun clearPin() {
