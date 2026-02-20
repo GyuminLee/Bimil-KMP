@@ -4,11 +4,11 @@ import com.imbavchenko.bimil.data.ad.AdService
 
 class IosAdService : AdService {
     override fun initialize() {
-        // TODO: Implement iOS AdMob when needed
+        // TODO: [FUTURE] Implement iOS AdMob when needed
     }
 
     override fun loadInterstitialAd() {
-        // TODO: Implement iOS AdMob when needed
+        // TODO: [FUTURE] Implement iOS AdMob when needed
     }
 
     override fun showInterstitialAd(onComplete: () -> Unit) {

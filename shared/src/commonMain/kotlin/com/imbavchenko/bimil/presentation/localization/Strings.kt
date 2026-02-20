@@ -131,7 +131,10 @@ data class Strings(
     val deleteAllDataConfirm: String,
     val confirm: String,
     val backupSuccess: String,
-    val restoreSuccess: String
+    val restoreSuccess: String,
+
+    // Privacy Policy
+    val privacyPolicyContent: String
 )
 
 val EnglishStrings = Strings(
@@ -260,7 +263,43 @@ val EnglishStrings = Strings(
     deleteAllDataConfirm = "Are you sure you want to delete all data? This action cannot be undone.",
     confirm = "Confirm",
     backupSuccess = "Backup created successfully",
-    restoreSuccess = "Data restored successfully"
+    restoreSuccess = "Data restored successfully",
+
+    privacyPolicyContent = """Privacy Policy for Bimil
+
+Last updated: February 2026
+
+Bimil ("the app") is committed to protecting your privacy.
+
+1. Data Collection
+We do NOT collect any personal information. We do NOT have servers or cloud storage. All your data stays on YOUR device only.
+
+2. Data Storage
+All data is stored locally on your device. Data is encrypted using AES-256 encryption. We cannot access your data - only you can.
+
+3. Password Security
+We do NOT store your actual passwords. We only store hints to help you remember them. Even if someone accesses your device, they cannot see your passwords.
+
+4. Advertising
+We use Google AdMob to display ads. AdMob may collect device identifiers for ad personalization. You can opt out of personalized ads in your device settings.
+
+5. Backup Files
+Backup files are encrypted with your chosen password. We cannot decrypt your backup files.
+
+6. Third-Party Services
+- Google AdMob (advertising)
+- Google Favicon Service (website icons)
+
+7. Children's Privacy
+This app is not intended for children under 13.
+
+8. Changes to This Policy
+We may update this policy from time to time. Changes will be reflected in the "Last updated" date.
+
+9. Contact
+For questions about this policy, contact: imbavchenko@gmail.com
+
+By using Bimil, you agree to this Privacy Policy."""
 )
 
 val KoreanStrings = Strings(
@@ -389,7 +428,43 @@ val KoreanStrings = Strings(
     deleteAllDataConfirm = "모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
     confirm = "확인",
     backupSuccess = "백업이 생성되었습니다",
-    restoreSuccess = "데이터가 복원되었습니다"
+    restoreSuccess = "데이터가 복원되었습니다",
+
+    privacyPolicyContent = """Bimil 개인정보 처리방침
+
+최종 업데이트: 2026년 2월
+
+Bimil("본 앱")은 사용자의 개인정보 보호를 위해 최선을 다합니다.
+
+1. 정보 수집
+당사는 어떠한 개인정보도 수집하지 않습니다. 서버나 클라우드 저장소를 운영하지 않습니다. 모든 데이터는 오직 사용자의 기기에만 저장됩니다.
+
+2. 데이터 저장
+모든 데이터는 사용자의 기기에 로컬로 저장됩니다. 데이터는 AES-256 암호화를 사용하여 보호됩니다. 당사는 사용자의 데이터에 접근할 수 없으며, 오직 사용자 본인만 접근 가능합니다.
+
+3. 비밀번호 보안
+당사는 실제 비밀번호를 저장하지 않습니다. 비밀번호를 기억할 수 있도록 돕는 힌트만 저장합니다. 누군가 기기에 접근하더라도 비밀번호를 볼 수 없습니다.
+
+4. 광고
+당사는 Google AdMob을 사용하여 광고를 표시합니다. AdMob은 맞춤형 광고를 위해 기기 식별자를 수집할 수 있습니다. 기기 설정에서 맞춤형 광고를 거부할 수 있습니다.
+
+5. 백업 파일
+백업 파일은 사용자가 설정한 비밀번호로 암호화됩니다. 당사는 백업 파일을 복호화할 수 없습니다.
+
+6. 제3자 서비스
+- Google AdMob (광고)
+- Google Favicon Service (웹사이트 아이콘)
+
+7. 아동 개인정보
+본 앱은 만 13세 미만의 아동을 대상으로 하지 않습니다.
+
+8. 본 방침의 변경
+본 방침은 수시로 업데이트될 수 있습니다. 변경 사항은 "최종 업데이트" 날짜에 반영됩니다.
+
+9. 문의
+본 방침에 대한 문의사항은 다음으로 연락해 주세요: imbavchenko@gmail.com
+
+Bimil을 사용함으로써 본 개인정보 처리방침에 동의하게 됩니다."""
 )
 
 val JapaneseStrings = Strings(
@@ -518,7 +593,43 @@ val JapaneseStrings = Strings(
     deleteAllDataConfirm = "すべてのデータを削除してもよろしいですか？この操作は元に戻せません。",
     confirm = "確認",
     backupSuccess = "バックアップが作成されました",
-    restoreSuccess = "データが復元されました"
+    restoreSuccess = "データが復元されました",
+
+    privacyPolicyContent = """Bimil プライバシーポリシー
+
+最終更新日: 2026年2月
+
+Bimil（「本アプリ」）は、お客様のプライバシー保護に努めています。
+
+1. 情報の収集
+当社は一切の個人情報を収集しません。サーバーやクラウドストレージは保有していません。すべてのデータはお客様のデバイスにのみ保存されます。
+
+2. データの保存
+すべてのデータはお客様のデバイスにローカル保存されます。データはAES-256暗号化で保護されています。当社はお客様のデータにアクセスできません。アクセスできるのはお客様ご本人のみです。
+
+3. パスワードのセキュリティ
+当社は実際のパスワードを保存しません。パスワードを思い出すためのヒントのみを保存しています。誰かがデバイスにアクセスしても、パスワードを見ることはできません。
+
+4. 広告
+当社はGoogle AdMobを使用して広告を表示しています。AdMobは広告のパーソナライズのためにデバイス識別子を収集する場合があります。デバイスの設定からパーソナライズド広告をオプトアウトできます。
+
+5. バックアップファイル
+バックアップファイルはお客様が設定したパスワードで暗号化されます。当社はバックアップファイルを復号化できません。
+
+6. 第三者サービス
+- Google AdMob（広告）
+- Google Favicon Service（ウェブサイトアイコン）
+
+7. お子様のプライバシー
+本アプリは13歳未満のお子様を対象としていません。
+
+8. 本ポリシーの変更
+本ポリシーは随時更新される場合があります。変更は「最終更新日」に反映されます。
+
+9. お問い合わせ
+本ポリシーに関するご質問は、こちらまでご連絡ください: imbavchenko@gmail.com
+
+Bimilをご利用いただくことで、本プライバシーポリシーに同意したものとみなされます。"""
 )
 
 val ChineseStrings = Strings(
@@ -647,7 +758,43 @@ val ChineseStrings = Strings(
     deleteAllDataConfirm = "您确定要删除所有数据吗？此操作无法撤销。",
     confirm = "确认",
     backupSuccess = "备份创建成功",
-    restoreSuccess = "数据恢复成功"
+    restoreSuccess = "数据恢复成功",
+
+    privacyPolicyContent = """Bimil 隐私政策
+
+最后更新：2026年2月
+
+Bimil（"本应用"）致力于保护您的隐私。
+
+1. 信息收集
+我们不收集任何个人信息。我们没有服务器或云存储。您的所有数据仅保存在您的设备上。
+
+2. 数据存储
+所有数据均存储在您的设备本地。数据使用AES-256加密进行保护。我们无法访问您的数据，只有您本人可以访问。
+
+3. 密码安全
+我们不存储您的实际密码。我们仅存储帮助您记忆密码的提示。即使有人访问您的设备，也无法看到您的密码。
+
+4. 广告
+我们使用Google AdMob展示广告。AdMob可能会收集设备标识符以进行广告个性化。您可以在设备设置中选择退出个性化广告。
+
+5. 备份文件
+备份文件使用您设定的密码进行加密。我们无法解密您的备份文件。
+
+6. 第三方服务
+- Google AdMob（广告）
+- Google Favicon Service（网站图标）
+
+7. 儿童隐私
+本应用不面向13岁以下的儿童。
+
+8. 本政策的变更
+我们可能会不时更新本政策。变更将反映在"最后更新"日期中。
+
+9. 联系方式
+如对本政策有任何疑问，请联系：imbavchenko@gmail.com
+
+使用Bimil即表示您同意本隐私政策。"""
 )
 
 val GermanStrings = Strings(
@@ -776,7 +923,43 @@ val GermanStrings = Strings(
     deleteAllDataConfirm = "Sind Sie sicher, dass Sie alle Daten loschen mochten? Diese Aktion kann nicht ruckgangig gemacht werden.",
     confirm = "Bestatigen",
     backupSuccess = "Sicherung erfolgreich erstellt",
-    restoreSuccess = "Daten erfolgreich wiederhergestellt"
+    restoreSuccess = "Daten erfolgreich wiederhergestellt",
+
+    privacyPolicyContent = """Datenschutzrichtlinie fur Bimil
+
+Zuletzt aktualisiert: Februar 2026
+
+Bimil ("die App") verpflichtet sich zum Schutz Ihrer Privatsphare.
+
+1. Datenerfassung
+Wir erfassen KEINE personenbezogenen Daten. Wir betreiben KEINE Server oder Cloud-Speicher. Alle Ihre Daten verbleiben ausschliesslich auf IHREM Gerat.
+
+2. Datenspeicherung
+Alle Daten werden lokal auf Ihrem Gerat gespeichert. Die Daten sind mit AES-256-Verschlusselung geschutzt. Wir konnen nicht auf Ihre Daten zugreifen - nur Sie selbst konnen das.
+
+3. Passwortsicherheit
+Wir speichern NICHT Ihre tatsachlichen Passworter. Wir speichern nur Hinweise, die Ihnen beim Erinnern helfen. Selbst wenn jemand auf Ihr Gerat zugreift, kann er Ihre Passworter nicht sehen.
+
+4. Werbung
+Wir verwenden Google AdMob zur Anzeige von Werbung. AdMob kann Geratekennungen zur Personalisierung von Werbung erfassen. Sie konnen personalisierte Werbung in Ihren Gerateeinstellungen deaktivieren.
+
+5. Sicherungsdateien
+Sicherungsdateien werden mit Ihrem gewahlten Passwort verschlusselt. Wir konnen Ihre Sicherungsdateien nicht entschlusseln.
+
+6. Drittanbieterdienste
+- Google AdMob (Werbung)
+- Google Favicon Service (Website-Symbole)
+
+7. Datenschutz fur Kinder
+Diese App ist nicht fur Kinder unter 13 Jahren bestimmt.
+
+8. Anderungen dieser Richtlinie
+Wir konnen diese Richtlinie von Zeit zu Zeit aktualisieren. Anderungen werden im Datum "Zuletzt aktualisiert" widergespiegelt.
+
+9. Kontakt
+Bei Fragen zu dieser Richtlinie kontaktieren Sie uns unter: imbavchenko@gmail.com
+
+Durch die Nutzung von Bimil stimmen Sie dieser Datenschutzrichtlinie zu."""
 )
 
 fun getStrings(language: Language): Strings {

@@ -246,7 +246,7 @@ private fun FallbackLetter(serviceName: String, color: Color) {
 
 /**
  * Password hint chips component displaying password requirements
- * Shows: digit count, numbers required, uppercase required, special chars required
+ * Only shows chips for requirements that are set to YES
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -262,59 +262,59 @@ fun PasswordHintChips(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // Minimum length chip (always show if hint exists)
+        // Minimum length chip (only show if set)
         if (hint != null && hint.minLength > 0) {
             HintChip(
                 text = "${hint.minLength}$digitPlusSuffix",
-                isActive = true,
                 isDarkTheme = isDarkTheme
             )
         }
 
-        // Numbers required chip
-        HintChip(
-            text = "123",
-            isActive = hint?.requiresNumber == RequirementStatus.YES,
-            isDarkTheme = isDarkTheme
-        )
+        // Numbers required chip (only show if YES)
+        if (hint?.requiresNumber == RequirementStatus.YES) {
+            HintChip(
+                text = "123",
+                isDarkTheme = isDarkTheme
+            )
+        }
 
-        // Uppercase required chip
-        HintChip(
-            text = "ABC",
-            isActive = hint?.requiresUppercase == RequirementStatus.YES,
-            isDarkTheme = isDarkTheme
-        )
+        // Uppercase required chip (only show if YES)
+        if (hint?.requiresUppercase == RequirementStatus.YES) {
+            HintChip(
+                text = "ABC",
+                isDarkTheme = isDarkTheme
+            )
+        }
 
-        // Special characters required chip
-        HintChip(
-            text = "!@#",
-            isActive = hint?.requiresSpecial == RequirementStatus.YES,
-            isDarkTheme = isDarkTheme
-        )
+        // Lowercase required chip (only show if YES)
+        if (hint?.requiresLowercase == RequirementStatus.YES) {
+            HintChip(
+                text = "abc",
+                isDarkTheme = isDarkTheme
+            )
+        }
+
+        // Special characters required chip (only show if YES)
+        if (hint?.requiresSpecial == RequirementStatus.YES) {
+            HintChip(
+                text = "!@#",
+                isDarkTheme = isDarkTheme
+            )
+        }
     }
 }
 
 /**
- * Individual hint chip with active/inactive styling
+ * Individual hint chip styling
  */
 @Composable
 fun HintChip(
     text: String,
-    isActive: Boolean,
     isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = if (isActive) {
-        if (isDarkTheme) BimilColors.ChipActiveDark else BimilColors.ChipActive
-    } else {
-        if (isDarkTheme) BimilColors.ChipInactiveDark else BimilColors.ChipInactive
-    }
-
-    val textColor = if (isActive) {
-        if (isDarkTheme) BimilColors.ChipActiveTextDark else BimilColors.ChipActiveText
-    } else {
-        if (isDarkTheme) BimilColors.ChipInactiveTextDark else BimilColors.ChipInactiveText
-    }
+    val backgroundColor = if (isDarkTheme) BimilColors.ChipActiveDark else BimilColors.ChipActive
+    val textColor = if (isDarkTheme) BimilColors.ChipActiveTextDark else BimilColors.ChipActiveText
 
     Surface(
         modifier = modifier,
@@ -326,7 +326,7 @@ fun HintChip(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
             color = textColor,
             style = MaterialTheme.typography.labelSmall,
-            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal
+            fontWeight = FontWeight.SemiBold
         )
     }
 }

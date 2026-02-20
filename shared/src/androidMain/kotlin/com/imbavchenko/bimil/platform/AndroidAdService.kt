@@ -23,7 +23,7 @@ class AndroidAdService(
     private val prefs = context.getSharedPreferences("ad_prefs", Context.MODE_PRIVATE)
 
     companion object {
-        // Test ad IDs - replace with production IDs for release
+        // TODO: [RELEASE] Replace with production AdMob Interstitial ID before Play Store release
         const val INTERSTITIAL_AD_ID = "ca-app-pub-3940256099942544/1033173712"
     }
 

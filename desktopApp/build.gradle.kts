@@ -32,9 +32,9 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Bimil"
-            packageVersion = "1.0.0"
+            packageVersion = "1.1.0"
             description = "Password Hint Manager"
-            copyright = "© 2024 Bimil"
+            copyright = "© 2026 Bimil"
             vendor = "Bimil"
 
             windows {

@@ -51,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalUriHandler
 import com.imbavchenko.bimil.data.biometric.BiometricService
 import com.imbavchenko.bimil.domain.model.Region
 import com.imbavchenko.bimil.domain.model.Theme
@@ -83,6 +84,8 @@ fun SettingsScreen(
     var showBackupPasswordDialog by remember { mutableStateOf(false) }
     var showRestorePasswordDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var showPrivacyPolicyDialog by remember { mutableStateOf(false) }
+    var showLicensesDialog by remember { mutableStateOf(false) }
     // Don't use remember - check every recomposition to handle Activity lifecycle
     val isBiometricAvailable = biometricService.isBiometricAvailable()
 
@@ -195,6 +198,16 @@ fun SettingsScreen(
                 }
             }
         )
+    }
+
+    // Privacy Policy Dialog
+    if (showPrivacyPolicyDialog) {
+        PrivacyPolicyDialog(onDismiss = { showPrivacyPolicyDialog = false })
+    }
+
+    // Open Source Licenses Dialog
+    if (showLicensesDialog) {
+        OpenSourceLicensesDialog(onDismiss = { showLicensesDialog = false })
     }
 
     Scaffold(
@@ -382,12 +395,12 @@ fun SettingsScreen(
 
                 SettingsRow(
                     title = strings.privacyPolicy,
-                    onClick = { /* TODO: Open privacy policy */ }
+                    onClick = { showPrivacyPolicyDialog = true }
                 )
 
                 SettingsRow(
                     title = strings.openSourceLicenses,
-                    onClick = { /* TODO: Open licenses */ }
+                    onClick = { showLicensesDialog = true }
                 )
             }
 
@@ -630,4 +643,173 @@ private fun PasswordInputDialog(
             }
         }
     )
+}
+
+@Composable
+private fun PrivacyPolicyDialog(onDismiss: () -> Unit) {
+    val strings = strings()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(strings.privacyPolicy, fontWeight = FontWeight.Bold) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = strings.privacyPolicyContent,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(strings.confirm)
+            }
+        }
+    )
+}
+
+@Composable
+private fun OpenSourceLicensesDialog(onDismiss: () -> Unit) {
+    val strings = strings()
+    val uriHandler = LocalUriHandler.current
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(strings.openSourceLicenses, fontWeight = FontWeight.Bold) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                val licenses = listOf(
+                    LicenseInfo(
+                        name = "Kotlin",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/JetBrains/kotlin"
+                    ),
+                    LicenseInfo(
+                        name = "Compose Multiplatform",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/JetBrains/compose-multiplatform"
+                    ),
+                    LicenseInfo(
+                        name = "AndroidX Libraries",
+                        license = "Apache License 2.0",
+                        url = "https://developer.android.com/jetpack/androidx"
+                    ),
+                    LicenseInfo(
+                        name = "Material Design Components",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/material-components/material-components-android"
+                    ),
+                    LicenseInfo(
+                        name = "Koin",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/InsertKoinIO/koin"
+                    ),
+                    LicenseInfo(
+                        name = "SQLDelight",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/cashapp/sqldelight"
+                    ),
+                    LicenseInfo(
+                        name = "SQLCipher",
+                        license = "BSD License",
+                        url = "https://github.com/sqlcipher/sqlcipher"
+                    ),
+                    LicenseInfo(
+                        name = "Kotlinx Serialization",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/Kotlin/kotlinx.serialization"
+                    ),
+                    LicenseInfo(
+                        name = "Kotlinx Coroutines",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/Kotlin/kotlinx.coroutines"
+                    ),
+                    LicenseInfo(
+                        name = "Kotlinx DateTime",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/Kotlin/kotlinx-datetime"
+                    ),
+                    LicenseInfo(
+                        name = "Coil",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/coil-kt/coil"
+                    ),
+                    LicenseInfo(
+                        name = "Ktor",
+                        license = "Apache License 2.0",
+                        url = "https://github.com/ktorio/ktor"
+                    )
+                )
+
+                licenses.forEach { license ->
+                    LicenseItem(license, onUrlClick = { uriHandler.openUri(it) })
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Apache License 2.0",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = """
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                    """.trimIndent(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(strings.confirm)
+            }
+        }
+    )
+}
+
+private data class LicenseInfo(
+    val name: String,
+    val license: String,
+    val url: String
+)
+
+@Composable
+private fun LicenseItem(license: LicenseInfo, onUrlClick: (String) -> Unit) {
+    Column {
+        Text(
+            text = license.name,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = license.license,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = license.url,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.tertiary,
+            modifier = Modifier.clickable { onUrlClick(license.url) }
+        )
+    }
 }

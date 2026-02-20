@@ -10,7 +10,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 
-// Test banner ad ID - replace with production ID for release
+// TODO: [RELEASE] Replace with production AdMob Banner ID before Play Store release
 private const val BANNER_AD_ID = "ca-app-pub-3940256099942544/6300978111"
 
 @Composable

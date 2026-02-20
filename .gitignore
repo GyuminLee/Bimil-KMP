@@ -51,9 +51,10 @@ DerivedData/
 *.hmap
 *.ipa
 
-# Keystore files
+# Keystore & signing
 *.jks
 *.keystore
+keystore.properties
 
 # Android Profiling
 *.hprof

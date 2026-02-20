@@ -2,6 +2,7 @@ package com.imbavchenko.bimil.presentation.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import com.imbavchenko.bimil.presentation.localization.strings
 import java.io.File
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -11,11 +12,12 @@ actual fun rememberFilePickerLaunchers(
     onFileSaved: (Boolean) -> Unit,
     onFileSelected: (ByteArray?) -> Unit
 ): FilePickerLaunchers {
-    return remember {
+    val localStrings = strings()
+    return remember(localStrings) {
         FilePickerLaunchers(
             launchFileSaver = { data, fileName ->
                 val fileChooser = JFileChooser().apply {
-                    dialogTitle = "Save Backup"
+                    dialogTitle = localStrings.createBackup
                     selectedFile = File(fileName)
                     fileFilter = FileNameExtensionFilter("Backup files", "bak")
                 }
@@ -38,7 +40,7 @@ actual fun rememberFilePickerLaunchers(
             },
             launchFilePicker = {
                 val fileChooser = JFileChooser().apply {
-                    dialogTitle = "Select Backup File"
+                    dialogTitle = localStrings.restoreBackup
                     fileFilter = FileNameExtensionFilter("Backup files", "bak")
                 }
 
