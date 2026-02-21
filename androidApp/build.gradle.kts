@@ -28,9 +28,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // TODO: [RELEASE] Replace with production AdMob IDs before Play Store release
-        buildConfigField("String", "ADMOB_APP_ID", "\"ca-app-pub-3940256099942544~3347511713\"")
-        buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
-        buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
+        buildConfigField("String", "ADMOB_APP_ID", "\"ca-app-pub-9079709861588903~9857919813\"")
+        buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-9079709861588903/3041230028\"")
+        buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"ca-app-pub-9079709861588903/5451770947\"")
     }
 
     signingConfigs {
